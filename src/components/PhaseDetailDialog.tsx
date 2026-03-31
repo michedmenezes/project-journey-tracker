@@ -17,14 +17,6 @@ const phaseBgClasses = [
   "bg-phase-1/10", "bg-phase-2/10", "bg-phase-3/10", "bg-phase-4/10", "bg-phase-5/10",
 ];
 
-const PHASE_DESCRIPTIONS: Record<number, string> = {
-  1: "Nesta fase, os alunos investigam um problema real que desejam resolver. Utilizam técnicas de brainstorming e pensamento criativo para mapear ideias e definir claramente o desafio. A entrega é a Definição do Problema acompanhada de um Mapa Mental de Ideias que organiza as possibilidades exploradas.",
-  2: "Com o problema definido, é hora de planejar a solução. Os alunos preenchem o Canvas de Protótipo, detalhando público-alvo, funcionalidades e recursos necessários. Também criam um Esboço Técnico com as especificações do protótipo que será construído.",
-  3: "Mão na massa! Os alunos elaboram a Lista de Materiais necessários e constroem a Primeira Versão do Protótipo (MVP — Mínimo Produto Viável). O foco é transformar o planejamento em algo tangível, mesmo que ainda imperfeito.",
-  4: "O protótipo é testado com usuários reais. Os alunos coletam feedback, identificam problemas e documentam os Ajustes Feitos. O Relatório de Testes registra o que funcionou, o que precisa melhorar e as decisões tomadas.",
-  5: "A fase final consolida todo o trabalho. Os alunos escrevem o Relatório Final do projeto e preparam o Protótipo Finalizado para apresentação na Mostra. É o momento de celebrar a jornada e compartilhar os resultados!",
-};
-
 interface PhaseDetailDialogProps {
   phase: Phase | null;
   phaseIndex: number;
@@ -70,20 +62,6 @@ export default function PhaseDetailDialog({
         </DialogHeader>
 
         <div className="space-y-4 mt-2">
-          <div className="rounded-lg bg-muted/50 p-3 border border-border">
-            <h4 className="text-sm font-semibold text-foreground mb-1">
-              📋 Entrega Requerida
-            </h4>
-            <p className="text-sm text-muted-foreground">{phase.delivery}</p>
-          </div>
-
-          <div className="rounded-lg bg-muted/50 p-3 border border-border">
-            <h4 className="text-sm font-semibold text-foreground mb-1">
-              🎯 Etapa
-            </h4>
-            <p className="text-sm text-muted-foreground">{phase.stage}</p>
-          </div>
-
           <div className="rounded-lg bg-muted/50 p-3 border border-border">
             <h4 className="text-sm font-semibold text-foreground mb-1">
               📋 Entrega Requerida
