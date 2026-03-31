@@ -1,7 +1,11 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { PHASES, type Group } from "@/lib/phases";
 import PhaseIcon from "./PhaseIcon";
+import PhaseDetailDialog from "./PhaseDetailDialog";
 import { cn } from "@/lib/utils";
+import type { Phase } from "@/lib/phases";
 
 const phaseColors = [
   "bg-phase-1",
@@ -24,13 +28,25 @@ interface PhaseTrackerProps {
 }
 
 export default function PhaseTracker({ group }: PhaseTrackerProps) {
+  const [selectedPhase, setSelectedPhase] = useState<Phase | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   const completed = group.completedPhases.filter(Boolean).length;
   const pct = (completed / PHASES.length) * 100;
+
+  const openDetail = (phase: Phase, index: number) => {
+    setSelectedPhase(phase);
+    setSelectedIndex(index);
+    setDialogOpen(true);
+  };
 
   return (
     <div className="rounded-xl bg-card p-5 shadow-md border border-border">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-display text-xl font-bold text-foreground">{group.name}</h3>
+        <Link to={`/grupo/${group.id}`} className="hover:underline">
+          <h3 className="font-display text-xl font-bold text-foreground">{group.name}</h3>
+        </Link>
         <span className="text-sm font-semibold text-muted-foreground">
           {completed}/{PHASES.length} fases
         </span>
@@ -52,10 +68,14 @@ export default function PhaseTracker({ group }: PhaseTrackerProps) {
         {PHASES.map((phase, i) => {
           const done = group.completedPhases[i];
           return (
-            <div key={phase.id} className="flex flex-col items-center flex-1 min-w-0">
+            <div
+              key={phase.id}
+              className="flex flex-col items-center flex-1 min-w-0 cursor-pointer"
+              onClick={() => openDetail(phase, i)}
+            >
               <motion.div
                 className={cn(
-                  "w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border-2 transition-colors",
+                  "w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border-2 transition-colors hover:scale-110",
                   done
                     ? `${phaseColors[i]} border-transparent text-primary-foreground`
                     : `bg-muted ${phaseBorders[i]} text-muted-foreground`
@@ -76,6 +96,22 @@ export default function PhaseTracker({ group }: PhaseTrackerProps) {
           );
         })}
       </div>
+
+      {/* Link to group page */}
+      <Link
+        to={`/grupo/${group.id}`}
+        className="block text-center text-xs font-semibold text-primary mt-4 hover:underline"
+      >
+        Ver página da equipe →
+      </Link>
+
+      <PhaseDetailDialog
+        phase={selectedPhase}
+        phaseIndex={selectedIndex}
+        completed={selectedPhase ? group.completedPhases[selectedIndex] : false}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+      />
     </div>
   );
 }
