@@ -1,12 +1,18 @@
 import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Plus, Trash2, ArrowLeft, Lock, ShieldCheck } from "lucide-react";
+import { Plus, Trash2, ArrowLeft, Lock, ShieldCheck, Pencil, Check, X, GripVertical } from "lucide-react";
 import PhaseIcon from "@/components/PhaseIcon";
-import { PHASES, loadGroups, saveGroups, type Group } from "@/lib/phases";
+import { loadPhases, savePhases, loadGroups, saveGroups, AVAILABLE_ICONS, type Phase, type Group } from "@/lib/phases";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const ADMIN_PASSWORD = "prof2025";
 
@@ -15,15 +21,28 @@ export default function AdminPanel() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
   const [groups, setGroups] = useState<Group[]>([]);
+  const [phases, setPhases] = useState<Phase[]>([]);
   const [newGroupName, setNewGroupName] = useState("");
+  const [editingPhaseId, setEditingPhaseId] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState({ title: "", stage: "", delivery: "", icon: "" });
+  const [newPhase, setNewPhase] = useState({ title: "", stage: "", delivery: "", icon: "Star" });
+  const [showNewPhase, setShowNewPhase] = useState(false);
 
   useEffect(() => {
-    if (authenticated) setGroups(loadGroups());
+    if (authenticated) {
+      setGroups(loadGroups());
+      setPhases(loadPhases());
+    }
   }, [authenticated]);
 
-  const persist = useCallback((updated: Group[]) => {
+  const persistGroups = useCallback((updated: Group[]) => {
     setGroups(updated);
     saveGroups(updated);
+  }, []);
+
+  const persistPhases = useCallback((updated: Phase[]) => {
+    setPhases(updated);
+    savePhases(updated);
   }, []);
 
   const handleLogin = () => {
@@ -41,25 +60,76 @@ export default function AdminPanel() {
     const g: Group = {
       id: crypto.randomUUID(),
       name,
-      completedPhases: [false, false, false, false, false],
+      completedPhases: phases.map(() => false),
     };
-    persist([...groups, g]);
+    persistGroups([...groups, g]);
     setNewGroupName("");
   };
 
   const removeGroup = (id: string) => {
-    persist(groups.filter((g) => g.id !== id));
+    persistGroups(groups.filter((g) => g.id !== id));
   };
 
   const togglePhase = (groupId: string, phaseIndex: number) => {
-    persist(
+    persistGroups(
       groups.map((g) => {
         if (g.id !== groupId) return g;
         const cp = [...g.completedPhases];
+        // Ensure array is long enough
+        while (cp.length < phases.length) cp.push(false);
         cp[phaseIndex] = !cp[phaseIndex];
         return { ...g, completedPhases: cp };
       })
     );
+  };
+
+  const startEditPhase = (phase: Phase) => {
+    setEditingPhaseId(phase.id);
+    setEditForm({ title: phase.title, stage: phase.stage, delivery: phase.delivery, icon: phase.icon });
+  };
+
+  const saveEditPhase = () => {
+    if (!editForm.title.trim()) return;
+    persistPhases(
+      phases.map((p) =>
+        p.id === editingPhaseId
+          ? { ...p, title: editForm.title.trim(), stage: editForm.stage.trim(), delivery: editForm.delivery.trim(), icon: editForm.icon }
+          : p
+      )
+    );
+    setEditingPhaseId(null);
+  };
+
+  const cancelEdit = () => setEditingPhaseId(null);
+
+  const addPhase = () => {
+    if (!newPhase.title.trim()) return;
+    const maxId = phases.reduce((max, p) => Math.max(max, p.id), 0);
+    const phase: Phase = {
+      id: maxId + 1,
+      title: newPhase.title.trim(),
+      stage: newPhase.stage.trim(),
+      delivery: newPhase.delivery.trim(),
+      icon: newPhase.icon,
+    };
+    persistPhases([...phases, phase]);
+    // Extend all groups' completedPhases
+    persistGroups(groups.map((g) => ({
+      ...g,
+      completedPhases: [...g.completedPhases, false],
+    })));
+    setNewPhase({ title: "", stage: "", delivery: "", icon: "Star" });
+    setShowNewPhase(false);
+  };
+
+  const removePhase = (phaseIndex: number) => {
+    const updated = phases.filter((_, i) => i !== phaseIndex);
+    persistPhases(updated);
+    // Remove corresponding index from all groups
+    persistGroups(groups.map((g) => ({
+      ...g,
+      completedPhases: g.completedPhases.filter((_, i) => i !== phaseIndex),
+    })));
   };
 
   if (!authenticated) {
@@ -108,7 +178,158 @@ export default function AdminPanel() {
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
+      <main className="max-w-3xl mx-auto px-4 py-8 space-y-8">
+        {/* Phase Management */}
+        <Accordion type="single" collapsible>
+          <AccordionItem value="phases" className="bg-card rounded-xl shadow-md border border-border px-5">
+            <AccordionTrigger className="font-display text-lg font-bold text-foreground hover:no-underline">
+              ⚙️ Gerenciar Etapas ({phases.length})
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-3 pb-2">
+                {phases.map((phase, pi) => (
+                  <div key={phase.id} className="rounded-lg border border-border p-3">
+                    {editingPhaseId === phase.id ? (
+                      <div className="space-y-2">
+                        <div className="grid grid-cols-2 gap-2">
+                          <Input
+                            placeholder="Título"
+                            value={editForm.title}
+                            onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                          />
+                          <Input
+                            placeholder="Etapa (ex: Ideação)"
+                            value={editForm.stage}
+                            onChange={(e) => setEditForm({ ...editForm, stage: e.target.value })}
+                          />
+                        </div>
+                        <Input
+                          placeholder="Entrega requerida"
+                          value={editForm.delivery}
+                          onChange={(e) => setEditForm({ ...editForm, delivery: e.target.value })}
+                        />
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">Ícone:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {AVAILABLE_ICONS.map((icon) => (
+                              <button
+                                key={icon}
+                                onClick={() => setEditForm({ ...editForm, icon })}
+                                className={cn(
+                                  "w-8 h-8 rounded-md flex items-center justify-center border transition-colors",
+                                  editForm.icon === icon
+                                    ? "border-primary bg-primary/10"
+                                    : "border-border hover:bg-muted"
+                                )}
+                              >
+                                <PhaseIcon icon={icon} className="w-4 h-4 text-foreground" />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" onClick={saveEditPhase} className="gap-1">
+                            <Check className="w-3 h-3" /> Salvar
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={cancelEdit} className="gap-1">
+                            <X className="w-3 h-3" /> Cancelar
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3">
+                        <PhaseIcon icon={phase.icon} className="w-5 h-5 text-muted-foreground shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <span className="font-semibold text-sm text-foreground">
+                            Fase {pi + 1}: {phase.title}
+                          </span>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {phase.stage} — {phase.delivery}
+                          </p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => startEditPhase(phase)}
+                          className="shrink-0 h-8 w-8"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removePhase(pi)}
+                          className="shrink-0 h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          disabled={phases.length <= 1}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                {showNewPhase ? (
+                  <div className="rounded-lg border-2 border-dashed border-primary/30 p-3 space-y-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        placeholder="Título da fase"
+                        value={newPhase.title}
+                        onChange={(e) => setNewPhase({ ...newPhase, title: e.target.value })}
+                      />
+                      <Input
+                        placeholder="Etapa (ex: Pesquisa)"
+                        value={newPhase.stage}
+                        onChange={(e) => setNewPhase({ ...newPhase, stage: e.target.value })}
+                      />
+                    </div>
+                    <Input
+                      placeholder="Entrega requerida"
+                      value={newPhase.delivery}
+                      onChange={(e) => setNewPhase({ ...newPhase, delivery: e.target.value })}
+                    />
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Ícone:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {AVAILABLE_ICONS.map((icon) => (
+                          <button
+                            key={icon}
+                            onClick={() => setNewPhase({ ...newPhase, icon })}
+                            className={cn(
+                              "w-8 h-8 rounded-md flex items-center justify-center border transition-colors",
+                              newPhase.icon === icon
+                                ? "border-primary bg-primary/10"
+                                : "border-border hover:bg-muted"
+                            )}
+                          >
+                            <PhaseIcon icon={icon} className="w-4 h-4 text-foreground" />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={addPhase} className="gap-1">
+                        <Plus className="w-3 h-3" /> Adicionar Fase
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => setShowNewPhase(false)}>
+                        Cancelar
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <Button
+                    variant="outline"
+                    className="w-full gap-2 border-dashed"
+                    onClick={() => setShowNewPhase(true)}
+                  >
+                    <Plus className="w-4 h-4" /> Nova Etapa
+                  </Button>
+                )}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+
         {/* Add group */}
         <div className="flex gap-3">
           <Input
@@ -150,8 +371,8 @@ export default function AdminPanel() {
             </div>
 
             <div className="space-y-3">
-              {PHASES.map((phase, pi) => {
-                const done = group.completedPhases[pi];
+              {phases.map((phase, pi) => {
+                const done = group.completedPhases[pi] ?? false;
                 return (
                   <label
                     key={phase.id}
@@ -171,7 +392,7 @@ export default function AdminPanel() {
                     <PhaseIcon icon={phase.icon} className="w-5 h-5 text-muted-foreground shrink-0" />
                     <div className="min-w-0">
                       <span className="font-semibold text-sm text-foreground">
-                        Fase {phase.id}: {phase.title}
+                        Fase {pi + 1}: {phase.title}
                       </span>
                       <p className="text-xs text-muted-foreground truncate">{phase.delivery}</p>
                     </div>

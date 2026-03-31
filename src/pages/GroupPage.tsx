@@ -4,36 +4,23 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Rocket } from "lucide-react";
 import PhaseIcon from "@/components/PhaseIcon";
 import PhaseDetailDialog from "@/components/PhaseDetailDialog";
-import { PHASES, loadGroups, type Group, type Phase } from "@/lib/phases";
+import { loadPhases, loadGroups, type Group, type Phase } from "@/lib/phases";
 import { cn } from "@/lib/utils";
 
 const phaseColors = [
-  "bg-phase-1",
-  "bg-phase-2",
-  "bg-phase-3",
-  "bg-phase-4",
-  "bg-phase-5",
+  "bg-phase-1", "bg-phase-2", "bg-phase-3", "bg-phase-4", "bg-phase-5",
 ];
-
 const phaseBorders = [
-  "border-phase-1",
-  "border-phase-2",
-  "border-phase-3",
-  "border-phase-4",
-  "border-phase-5",
+  "border-phase-1", "border-phase-2", "border-phase-3", "border-phase-4", "border-phase-5",
 ];
-
 const phaseTextColors = [
-  "text-phase-1",
-  "text-phase-2",
-  "text-phase-3",
-  "text-phase-4",
-  "text-phase-5",
+  "text-phase-1", "text-phase-2", "text-phase-3", "text-phase-4", "text-phase-5",
 ];
 
 export default function GroupPage() {
   const { groupId } = useParams<{ groupId: string }>();
   const [group, setGroup] = useState<Group | null>(null);
+  const [phases, setPhases] = useState<Phase[]>(loadPhases());
   const [selectedPhase, setSelectedPhase] = useState<Phase | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -43,6 +30,7 @@ export default function GroupPage() {
       const groups = loadGroups();
       const found = groups.find((g) => g.id === groupId) ?? null;
       setGroup(found);
+      setPhases(loadPhases());
     };
     update();
     const interval = setInterval(update, 2000);
@@ -63,7 +51,7 @@ export default function GroupPage() {
   }
 
   const completed = group.completedPhases.filter(Boolean).length;
-  const pct = (completed / PHASES.length) * 100;
+  const pct = phases.length > 0 ? (completed / phases.length) * 100 : 0;
 
   const openPhaseDetail = (phase: Phase, index: number) => {
     setSelectedPhase(phase);
@@ -95,13 +83,12 @@ export default function GroupPage() {
             </h1>
           </div>
           <p className="text-primary-foreground/80 mt-1">
-            {completed}/{PHASES.length} fases concluídas
+            {completed}/{phases.length} fases concluídas
           </p>
         </motion.div>
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-        {/* Progress bar */}
         <div className="rounded-xl bg-card p-5 shadow-md border border-border">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-semibold text-foreground">Progresso Geral</span>
@@ -118,9 +105,8 @@ export default function GroupPage() {
           </div>
         </div>
 
-        {/* Phase cards */}
-        {PHASES.map((phase, i) => {
-          const done = group.completedPhases[i];
+        {phases.map((phase, i) => {
+          const done = group.completedPhases[i] ?? false;
           return (
             <motion.div
               key={phase.id}
@@ -138,8 +124,8 @@ export default function GroupPage() {
                   className={cn(
                     "w-14 h-14 rounded-full flex items-center justify-center border-2 shrink-0",
                     done
-                      ? `${phaseColors[i]} border-transparent text-primary-foreground`
-                      : `bg-muted ${phaseBorders[i]} text-muted-foreground`
+                      ? `${phaseColors[i % phaseColors.length]} border-transparent text-primary-foreground`
+                      : `bg-muted ${phaseBorders[i % phaseBorders.length]} text-muted-foreground`
                   )}
                 >
                   <PhaseIcon icon={phase.icon} className="w-7 h-7" />
@@ -147,7 +133,7 @@ export default function GroupPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-display text-lg font-bold text-foreground">
-                      Fase {phase.id}: {phase.title}
+                      Fase {i + 1}: {phase.title}
                     </h3>
                     {done && (
                       <span className="text-xs font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-full">
@@ -161,7 +147,7 @@ export default function GroupPage() {
                   <p className="text-xs text-muted-foreground">
                     📋 {phase.delivery}
                   </p>
-                  <span className={cn("text-xs font-semibold mt-2 inline-block", phaseTextColors[i])}>
+                  <span className={cn("text-xs font-semibold mt-2 inline-block", phaseTextColors[i % phaseTextColors.length])}>
                     Clique para saber mais →
                   </span>
                 </div>
@@ -174,7 +160,7 @@ export default function GroupPage() {
       <PhaseDetailDialog
         phase={selectedPhase}
         phaseIndex={selectedIndex}
-        completed={selectedPhase ? group.completedPhases[selectedIndex] : false}
+        completed={selectedPhase ? (group.completedPhases[selectedIndex] ?? false) : false}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
       />
