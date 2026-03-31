@@ -28,7 +28,7 @@ export default {
           50: '#f5f3ff',
           100: '#ede9fe',
           200: '#ddd6fe',
-          500: '#8b5cf6', // Violeta principal
+          500: '#8b5cf6', // Roxo principal Materio
           600: '#7c3aed', // Hover
           700: '#6d28d9',
         },
@@ -67,6 +67,11 @@ export default {
         lg: "0.75rem",
         md: "0.5rem",
         sm: "0.25rem",
+      },
+      boxShadow: {
+        'materio': '0 4px 18px 0 rgba(0, 0, 0, 0.1)',
+        'materio-dark': '0 4px 18px 0 rgba(0, 0, 0, 0.4)',
+        'materio-primary': '0 4px 14px 0 rgba(139, 92, 246, 0.39)',
       },
       keyframes: {
         "accordion-down": {

@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Plus, Trash2, ArrowLeft, Lock, ShieldCheck, Pencil, Check, X, Filter, LogOut, FileUp, Download } from "lucide-react";
+import { Plus, Trash2, ArrowLeft, Lock, ShieldCheck, Pencil, Check, X, Filter, LogOut, FileUp, Download, LayoutDashboard, Settings } from "lucide-react";
 import PhaseIcon from "@/components/PhaseIcon";
 import ThemeToggle from "@/components/ThemeToggle";
 import { loadPhases, savePhases, loadGroups, saveGroups, AVAILABLE_ICONS, type Phase, type Group } from "@/lib/phases";
@@ -274,13 +274,13 @@ export default function AdminPanel() {
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="w-full max-w-sm glass-card rounded-2xl p-8 text-center"
+          className="w-full max-w-sm materio-card rounded-xl p-8 text-center"
         >
-          <div className="bg-brand-500/10 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-brand-500/20 brand-glow">
-            <Lock className="w-8 h-8 text-brand-500" />
+          <div className="materio-gradient w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-6 shadow-materio-primary">
+            <Lock className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-2xl font-black text-foreground mb-2">Painel do Professor</h2>
-          <p className="text-muted-foreground text-sm mb-8 font-medium uppercase tracking-widest">Digite a senha para acessar</p>
+          <h2 className="text-2xl font-bold text-foreground mb-1 tracking-tight">Painel do Professor</h2>
+          <p className="text-muted-foreground text-xs mb-8 font-bold uppercase tracking-widest">Acesso Restrito</p>
           <Input
             type="password"
             placeholder="Senha de acesso"
@@ -290,11 +290,11 @@ export default function AdminPanel() {
               setError(false);
             }}
             onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-            className={cn("mb-4 bg-secondary/50 border-border rounded-xl text-center font-bold tracking-widest h-12", error && "border-red-500/50")}
+            className={cn("mb-4 bg-secondary/50 border-border rounded-lg text-center font-bold tracking-widest h-11", error && "border-red-500/50")}
           />
-          {error && <p className="text-red-500 text-xs mb-4 font-bold">Senha incorreta</p>}
-          <Button onClick={handleLogin} className="w-full bg-brand-500 hover:bg-brand-600 text-white font-black rounded-xl h-12 brand-glow">
-            Entrar no Painel
+          {error && <p className="text-red-500 text-[10px] mb-4 font-bold uppercase tracking-widest">Senha incorreta</p>}
+          <Button onClick={handleLogin} className="w-full h-11 font-bold">
+            Entrar
           </Button>
           <div className="mt-6 flex justify-center">
             <ThemeToggle />
@@ -306,39 +306,43 @@ export default function AdminPanel() {
 
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
-      <header
-        className="py-10 px-6 border-b border-border relative overflow-hidden"
-        style={{ background: "var(--gradient-hero)" }}
-      >
-        <div className="max-w-5xl mx-auto flex items-center justify-between relative z-10">
-          <div className="flex items-center gap-4">
-            <Link to="/" className="hover:bg-secondary/50 p-2 rounded-xl transition-colors">
-              <ArrowLeft className="w-6 h-6 text-muted-foreground" />
+      {/* Header Admin */}
+      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border px-6 py-4">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link to="/" className="hover:bg-secondary p-2 rounded-lg transition-colors">
+              <ArrowLeft className="w-5 h-5 text-muted-foreground" />
             </Link>
-            <div className="bg-brand-500/10 p-2 rounded-xl border border-brand-500/20">
-              <ShieldCheck className="w-7 h-7 text-brand-500" />
+            <div className="bg-brand-500/10 p-2 rounded-lg border border-brand-500/20">
+              <ShieldCheck className="w-6 h-6 text-brand-500" />
             </div>
-            <h1 className="text-2xl font-black text-foreground dark:text-white tracking-tight">Painel do Professor</h1>
+            <div>
+              <h1 className="text-xl font-bold tracking-tight text-foreground">Configurações</h1>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none mt-1">Gestão de Projetos</p>
+            </div>
           </div>
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-foreground hover:bg-secondary/50 gap-2 rounded-xl font-bold">
-              <LogOut className="w-4 h-4" /> Sair
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-red-500 gap-2 font-bold">
+              <LogOut className="w-4 h-4" /> <span className="hidden sm:inline">Sair</span>
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-6 py-10 space-y-10">
-        <Accordion type="single" collapsible>
-          <AccordionItem value="phases" className="glass-card rounded-2xl px-6 border-none overflow-hidden">
-            <AccordionTrigger className="text-lg font-black text-foreground hover:no-underline py-6">
-              ⚙️ Gerenciar Etapas do Projeto ({phases.length})
+      <main className="max-w-6xl mx-auto px-6 py-8 space-y-8">
+        <Accordion type="single" collapsible className="space-y-4">
+          <AccordionItem value="phases" className="materio-card rounded-xl border-none overflow-hidden px-6">
+            <AccordionTrigger className="text-lg font-bold text-foreground hover:no-underline py-6">
+              <div className="flex items-center gap-3">
+                <Settings className="w-5 h-5 text-brand-500" />
+                <span>Gerenciar Etapas do Projeto ({phases.length})</span>
+              </div>
             </AccordionTrigger>
             <AccordionContent>
               <div className="space-y-4 pb-6">
                 {phases.map((phase, pi) => (
-                  <div key={phase.id} className="rounded-xl bg-secondary/30 border border-border p-4 transition-all hover:border-brand-500/30">
+                  <div key={phase.id} className="rounded-lg bg-secondary/30 border border-border p-4 transition-all hover:border-brand-500/30">
                     {editingPhaseId === phase.id ? (
                       <PhaseForm
                         form={editForm}
@@ -349,21 +353,21 @@ export default function AdminPanel() {
                       />
                     ) : (
                       <div className="flex items-center gap-4">
-                        <div className="bg-secondary p-2 rounded-xl border border-border">
-                          <PhaseIcon icon={phase.icon} className="w-5 h-5 text-muted-foreground" />
+                        <div className="bg-card p-2 rounded-lg border border-border shadow-sm">
+                          <PhaseIcon icon={phase.icon} className="w-5 h-5 text-brand-500" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <span className="font-black text-sm text-foreground uppercase tracking-wider">
+                          <span className="font-bold text-sm text-foreground">
                             Fase {pi + 1}: {phase.title}
                           </span>
-                          <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest mt-0.5">
+                          <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mt-0.5">
                             {phase.stage} — {phase.delivery}
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
                           <Link
                             to={`/fase/${phase.id}`}
-                            className="text-[10px] font-black uppercase tracking-widest text-brand-500 hover:underline mr-2"
+                            className="text-[10px] font-bold uppercase tracking-widest text-brand-500 hover:underline mr-2"
                           >
                             Ver página
                           </Link>
@@ -371,7 +375,7 @@ export default function AdminPanel() {
                             variant="ghost"
                             size="icon"
                             onClick={() => startEditPhase(phase)}
-                            className="h-9 w-9 rounded-xl hover:bg-secondary text-muted-foreground"
+                            className="h-9 w-9 rounded-lg hover:bg-brand-500/10 text-muted-foreground hover:text-brand-500"
                           >
                             <Pencil className="w-4 h-4" />
                           </Button>
@@ -379,7 +383,7 @@ export default function AdminPanel() {
                             variant="ghost"
                             size="icon"
                             onClick={() => removePhase(pi)}
-                            className="h-9 w-9 rounded-xl hover:bg-red-500/10 text-muted-foreground hover:text-red-500"
+                            className="h-9 w-9 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-500"
                             disabled={phases.length <= 1}
                           >
                             <Trash2 className="w-4 h-4" />
@@ -391,8 +395,8 @@ export default function AdminPanel() {
                 ))}
 
                 {showNewPhase ? (
-                  <div className="rounded-2xl border-2 border-dashed border-brand-500/30 p-6 bg-brand-500/5">
-                    <p className="text-xs font-black text-brand-500 mb-6 uppercase tracking-[0.2em]">
+                  <div className="rounded-xl border-2 border-dashed border-brand-500/30 p-6 bg-brand-500/5">
+                    <p className="text-[10px] font-bold text-brand-500 mb-6 uppercase tracking-widest">
                       Criar Nova Etapa
                     </p>
                     <PhaseForm
@@ -406,7 +410,7 @@ export default function AdminPanel() {
                 ) : (
                   <Button
                     variant="outline"
-                    className="w-full gap-2 border-dashed border-border bg-secondary/20 hover:bg-secondary/50 rounded-xl h-12 font-black text-muted-foreground uppercase tracking-widest text-xs"
+                    className="w-full gap-2 border-dashed border-border hover:bg-secondary/50 h-12 font-bold text-muted-foreground uppercase tracking-widest text-[10px]"
                     onClick={() => setShowNewPhase(true)}
                   >
                     <Plus className="w-4 h-4" /> Nova Etapa
@@ -418,15 +422,15 @@ export default function AdminPanel() {
         </Accordion>
 
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-            <h2 className="text-2xl font-black text-foreground tracking-tight">Equipes por Turma</h2>
-            <div className="flex items-center gap-3 w-full sm:w-auto glass-card px-4 py-2 rounded-xl border border-border">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <h2 className="text-2xl font-bold text-foreground tracking-tight">Gestão de Equipes</h2>
+            <div className="flex items-center gap-3 w-full sm:w-auto bg-card border border-border px-4 py-2 rounded-lg shadow-sm">
               <Filter className="w-4 h-4 text-muted-foreground" />
               <Select value={selectedClassFilter} onValueChange={setSelectedClassFilter}>
-                <SelectTrigger className="w-full sm:w-[200px] border-none bg-transparent shadow-none focus:ring-0 text-foreground font-bold">
-                  <SelectValue placeholder="Filtrar por turma" />
+                <SelectTrigger className="w-full sm:w-[180px] border-none bg-transparent shadow-none focus:ring-0 text-foreground font-bold">
+                  <SelectValue placeholder="Todas as turmas" />
                 </SelectTrigger>
-                <SelectContent className="bg-popover border-border text-popover-foreground">
+                <SelectContent>
                   <SelectItem value="all">Todas as turmas</SelectItem>
                   {classes.map((c) => (
                     <SelectItem key={c} value={c}>{c}</SelectItem>
@@ -436,11 +440,14 @@ export default function AdminPanel() {
             </div>
           </div>
 
-          <div className="glass-card rounded-2xl p-8 space-y-8 border-none shadow-2xl">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-black text-foreground uppercase tracking-widest">Gerenciar Equipes</p>
-              <div className="flex gap-3">
-                <Button variant="outline" size="sm" onClick={downloadCSVTemplate} className="text-[10px] font-black uppercase tracking-widest gap-2 h-9 rounded-xl bg-secondary/50 border-border text-muted-foreground hover:text-foreground">
+          <div className="materio-card rounded-xl p-8 space-y-8 border-none">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-bold text-foreground uppercase tracking-widest">Adicionar Grupos</p>
+                <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mt-1">Individual ou em massa via CSV</p>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={downloadCSVTemplate} className="text-[9px] font-bold gap-2">
                   <Download className="w-3.5 h-3.5" /> Modelo CSV
                 </Button>
                 <div className="relative">
@@ -450,7 +457,7 @@ export default function AdminPanel() {
                     onChange={handleCSVImport}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
-                  <Button variant="outline" size="sm" className="text-[10px] font-black uppercase tracking-widest gap-2 h-9 rounded-xl bg-brand-500/10 border-brand-500/20 text-brand-500 hover:bg-brand-500/20">
+                  <Button variant="outline" size="sm" className="text-[9px] font-bold gap-2 bg-brand-500/10 border-brand-500/20 text-brand-500 hover:bg-brand-500/20">
                     <FileUp className="w-3.5 h-3.5" /> Importar CSV
                   </Button>
                 </div>
@@ -458,32 +465,25 @@ export default function AdminPanel() {
             </div>
             
             <div className="pt-8 border-t border-border">
-              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-4">Adicionar Individualmente</p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Input
-                  placeholder="Nome da equipe (ex: Alpha)"
+                  placeholder="Nome da equipe"
                   value={newGroupName}
                   onChange={(e) => setNewGroupName(e.target.value)}
-                  className="flex-1 h-11 bg-secondary/30 border-border rounded-xl text-sm font-bold"
+                  className="flex-1 h-11 bg-secondary/30 border-border rounded-lg text-sm font-semibold"
                 />
                 <Input
                   placeholder="Turma (ex: 8º Ano A)"
                   value={newGroupClass}
                   onChange={(e) => setNewGroupClass(e.target.value)}
-                  className="w-full sm:w-[220px] h-11 bg-secondary/30 border-border rounded-xl text-sm font-bold"
+                  className="w-full sm:w-[200px] h-11 bg-secondary/30 border-border rounded-lg text-sm font-semibold"
                 />
-                <Button onClick={addGroup} className="gap-2 h-11 px-8 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-black brand-glow">
-                  <Plus className="w-4 h-4" /> Adicionar
+                <Button onClick={addGroup} className="h-11 px-8 font-bold">
+                  <Plus className="w-4 h-4 mr-2" /> Adicionar
                 </Button>
               </div>
             </div>
           </div>
-
-          {filteredGroups.length === 0 && (
-            <p className="text-center text-muted-foreground py-16 glass-card rounded-2xl border-2 border-dashed border-border font-bold italic">
-              Nenhum grupo encontrado para esta seleção.
-            </p>
-          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {filteredGroups.map((group, gi) => (
@@ -492,13 +492,13 @@ export default function AdminPanel() {
                 initial={{ y: 15, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: gi * 0.05 }}
-                className="glass-card rounded-2xl p-6 border-none shadow-xl hover:bg-secondary/10 transition-all"
+                className="materio-card rounded-xl p-6 border-none hover:border-brand-500/30"
               >
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex-1 min-w-0 mr-4">
-                    <h3 className="text-lg font-black text-foreground tracking-tight truncate">{group.name}</h3>
-                    <div className="flex flex-wrap items-center gap-3 mt-2">
-                      <span className="text-[9px] font-black bg-brand-500/10 text-brand-500 px-2.5 py-1 rounded-lg uppercase tracking-widest border border-brand-500/10">
+                    <h3 className="text-lg font-bold text-foreground tracking-tight truncate">{group.name}</h3>
+                    <div className="flex flex-wrap items-center gap-3 mt-1.5">
+                      <span className="text-[9px] font-bold bg-brand-500/10 text-brand-500 px-2.5 py-1 rounded-md uppercase tracking-widest border border-brand-500/10">
                         {group.class}
                       </span>
                       {group.members && group.members.length > 0 && (
@@ -512,7 +512,7 @@ export default function AdminPanel() {
                     variant="ghost"
                     size="icon"
                     onClick={() => removeGroup(group.id)}
-                    className="h-9 w-9 rounded-xl hover:bg-red-500/10 text-muted-foreground hover:text-red-500"
+                    className="h-9 w-9 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-500"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -525,17 +525,17 @@ export default function AdminPanel() {
                       <label
                         key={phase.id}
                         className={cn(
-                          "flex items-center gap-4 p-3 rounded-xl cursor-pointer transition-all border text-xs font-bold uppercase tracking-wider",
+                          "flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-all border text-[10px] font-bold uppercase tracking-widest",
                           done
                             ? "bg-brand-500/10 border-brand-500/20 text-brand-500"
                             : "bg-secondary/20 border-border text-muted-foreground hover:border-brand-500/30 hover:bg-secondary/40"
                         )}
                       >
                         <div className={cn(
-                          "w-5 h-5 rounded-md flex items-center justify-center border transition-all",
-                          done ? "bg-brand-500 border-brand-500 text-white" : "border-border bg-secondary"
+                          "w-4 h-4 rounded-md flex items-center justify-center border transition-all",
+                          done ? "bg-brand-500 border-brand-500 text-white shadow-materio-primary" : "border-border bg-card"
                         )}>
-                          {done && <Check className="w-3.5 h-3.5" />}
+                          {done && <Check className="w-3 h-3" />}
                         </div>
                         <input
                           type="checkbox"
@@ -543,7 +543,7 @@ export default function AdminPanel() {
                           onChange={() => togglePhase(group.id, pi)}
                           className="hidden"
                         />
-                        <PhaseIcon icon={phase.icon} className={cn("w-4 h-4 shrink-0", done ? "text-brand-500" : "text-muted-foreground")} />
+                        <PhaseIcon icon={phase.icon} className={cn("w-3.5 h-3.5 shrink-0", done ? "text-brand-500" : "text-muted-foreground")} />
                         <span className="flex-1 truncate">
                           Fase {pi + 1}: {phase.title}
                         </span>
@@ -576,45 +576,45 @@ function PhaseForm({ form, onChange, onSave, onCancel, saveLabel }: PhaseFormPro
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Título da Fase</label>
+          <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Título da Fase</label>
           <Input
             placeholder="Ex: Investigadores"
             value={form.title}
             onChange={set("title")}
-            className="h-11 bg-secondary/30 border-border rounded-xl font-bold"
+            className="h-11 bg-card border-border rounded-lg font-semibold"
           />
         </div>
         <div className="space-y-2">
-          <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Etapa do Projeto</label>
+          <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Etapa do Projeto</label>
           <Input
             placeholder="Ex: Ideação"
             value={form.stage}
             onChange={set("stage")}
-            className="h-11 bg-secondary/30 border-border rounded-xl font-bold"
+            className="h-11 bg-card border-border rounded-lg font-semibold"
           />
         </div>
       </div>
       <div className="space-y-2">
-        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Entrega Requerida</label>
+        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Entrega Requerida</label>
         <Input
           placeholder="O que o grupo deve entregar?"
           value={form.delivery}
           onChange={set("delivery")}
-          className="h-11 bg-secondary/30 border-border rounded-xl font-bold"
+          className="h-11 bg-card border-border rounded-lg font-semibold"
         />
       </div>
       <div className="space-y-2">
-        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Descrição Detalhada</label>
+        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Descrição Detalhada</label>
         <textarea
           placeholder="Explique o que acontece nesta fase..."
           value={form.description}
           onChange={set("description")}
           rows={3}
-          className="w-full rounded-xl border border-border bg-secondary/30 px-4 py-3 text-sm font-medium ring-offset-background placeholder:text-muted-foreground/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 resize-none text-foreground"
+          className="w-full rounded-lg border border-border bg-card px-4 py-3 text-sm font-medium ring-offset-background placeholder:text-muted-foreground/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 resize-none text-foreground"
         />
       </div>
       <div className="space-y-2">
-        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
+        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
           Missões <span className="font-medium lowercase">(uma por linha)</span>
         </label>
         <textarea
@@ -622,11 +622,11 @@ function PhaseForm({ form, onChange, onSave, onCancel, saveLabel }: PhaseFormPro
           value={form.missions}
           onChange={set("missions")}
           rows={4}
-          className="w-full rounded-xl border border-border bg-secondary/30 px-4 py-3 text-sm font-medium ring-offset-background placeholder:text-muted-foreground/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 resize-none text-foreground"
+          className="w-full rounded-lg border border-border bg-card px-4 py-3 text-sm font-medium ring-offset-background placeholder:text-muted-foreground/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 resize-none text-foreground"
         />
       </div>
       <div className="space-y-4">
-        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Ícone Representativo</label>
+        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Ícone Representativo</label>
         <div className="flex flex-wrap gap-2">
           {AVAILABLE_ICONS.map((icon) => (
             <button
@@ -634,10 +634,10 @@ function PhaseForm({ form, onChange, onSave, onCancel, saveLabel }: PhaseFormPro
               type="button"
               onClick={() => onChange({ ...form, icon })}
               className={cn(
-                "w-10 h-10 rounded-xl flex items-center justify-center border transition-all",
+                "w-10 h-10 rounded-lg flex items-center justify-center border transition-all",
                 form.icon === icon
-                  ? "border-brand-500 bg-brand-500/10 text-brand-500 brand-glow"
-                  : "border-border bg-secondary text-muted-foreground hover:border-brand-500/30 hover:text-foreground"
+                  ? "border-brand-500 bg-brand-500/10 text-brand-500 shadow-sm"
+                  : "border-border bg-card text-muted-foreground hover:border-brand-500/30 hover:text-foreground"
               )}
             >
               <PhaseIcon icon={icon} className="w-5 h-5" />
@@ -646,10 +646,10 @@ function PhaseForm({ form, onChange, onSave, onCancel, saveLabel }: PhaseFormPro
         </div>
       </div>
       <div className="flex gap-3 pt-4">
-        <Button onClick={onSave} className="bg-brand-500 hover:bg-brand-600 text-white font-black px-8 rounded-xl h-11 brand-glow">
+        <Button onClick={onSave} className="font-bold px-8">
           <Check className="w-4 h-4 mr-2" /> {saveLabel}
         </Button>
-        <Button variant="ghost" onClick={onCancel} className="text-muted-foreground hover:text-foreground hover:bg-secondary/50 font-bold rounded-xl h-11 px-6">
+        <Button variant="ghost" onClick={onCancel} className="text-muted-foreground hover:text-foreground font-bold px-6">
           <X className="w-4 h-4 mr-2" /> Cancelar
         </Button>
       </div>

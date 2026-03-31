@@ -6,73 +6,73 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --background: 0 0% 98%;
+    --foreground: 230 11% 25%;
 
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 230 11% 25%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
+    --popover-foreground: 230 11% 25%;
 
-    --primary: 263.4 70% 50.4%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 263 90% 64%; /* Roxo Materio */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
+    --secondary: 230 11% 95%;
+    --secondary-foreground: 230 11% 25%;
 
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
+    --muted: 230 11% 90%;
+    --muted-foreground: 230 11% 45%;
 
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --accent: 263 90% 96%;
+    --accent-foreground: 263 90% 64%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 263.4 70% 50.4%;
+    --border: 230 11% 90%;
+    --input: 230 11% 90%;
+    --ring: 263 90% 64%;
 
     --radius: 0.75rem;
 
-    --surface-color: 240 4.8% 95.9%;
-    --glass-bg: 255 255 255 / 0.6;
-    --glass-border: 0 0 0 / 0.1;
+    --surface-color: 0 0% 100%;
+    --glass-bg: 255 255 255 / 0.8;
+    --glass-border: 0 0 0 / 0.05;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
+    --background: 230 15% 12%; /* Dark background Materio */
+    --foreground: 230 11% 90%;
 
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
+    --card: 230 15% 18%; /* Dark card Materio */
+    --card-foreground: 230 11% 90%;
 
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 230 15% 18%;
+    --popover-foreground: 230 11% 90%;
 
-    --primary: 263.4 70% 50.4%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 263 90% 64%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 230 15% 25%;
+    --secondary-foreground: 230 11% 90%;
 
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
+    --muted: 230 15% 25%;
+    --muted-foreground: 230 11% 65%;
 
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 263 90% 20%;
+    --accent-foreground: 263 90% 85%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 63% 45%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 263.4 70% 50.4%;
+    --border: 230 15% 25%;
+    --input: 230 15% 25%;
+    --ring: 263 90% 64%;
 
-    --surface-color: 240 3.7% 15.9%;
-    --glass-bg: 24 24 27 / 0.6;
-    --glass-border: 255 255 255 / 0.1;
+    --surface-color: 230 15% 18%;
+    --glass-bg: 46 50 64 / 0.7;
+    --glass-border: 255 255 255 / 0.08;
   }
 }
 
@@ -84,21 +84,30 @@
     @apply bg-background text-foreground antialiased transition-colors duration-300;
     font-family: 'Inter', sans-serif;
   }
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Inter', sans-serif;
-    @apply font-bold;
-  }
+}
+
+.materio-card {
+  @apply bg-card border border-border shadow-sm transition-all duration-200;
+  box-shadow: 0 4px 18px 0 rgba(0, 0, 0, 0.1);
+}
+
+.dark .materio-card {
+  box-shadow: 0 4px 18px 0 rgba(0, 0, 0, 0.4);
 }
 
 .glass-card {
   background-color: rgb(var(--glass-bg));
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(10px);
   border: 1px solid rgb(var(--glass-border));
-  @apply shadow-lg shadow-black/5 dark:shadow-black/20;
+  @apply shadow-lg;
 }
 
 .brand-glow {
-  @apply shadow-lg shadow-violet-500/20;
+  box-shadow: 0 4px 14px 0 rgba(139, 92, 246, 0.39);
+}
+
+.materio-gradient {
+  background: linear-gradient(135deg, #8C57FF 0%, #6A35FF 100%);
 }
 
 /* Custom Scrollbar */

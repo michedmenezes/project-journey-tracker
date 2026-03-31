@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, CheckCircle2, Circle, Rocket, Target, Trophy, Info } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Circle, Rocket, Target, Trophy, Info, LayoutDashboard } from "lucide-react";
 import PhaseIcon from "@/components/PhaseIcon";
 import PhaseDetailDialog from "@/components/PhaseDetailDialog";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -39,7 +39,7 @@ export default function GroupPage() {
         <div className="bg-secondary p-4 rounded-2xl border border-border mb-6">
           <Rocket className="w-12 h-12 text-muted-foreground" />
         </div>
-        <h2 className="text-2xl font-black text-foreground mb-2">Equipe não encontrada</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-2">Equipe não encontrada</h2>
         <Link to="/" className="text-brand-500 font-bold hover:underline uppercase tracking-widest text-xs">
           Voltar ao Dashboard
         </Link>
@@ -52,130 +52,119 @@ export default function GroupPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-20 transition-colors duration-300">
-      <header
-        className="py-12 px-6 border-b border-border relative overflow-hidden"
-        style={{ background: "var(--gradient-hero)" }}
-      >
-        <div className="absolute inset-0 bg-brand-500/5 blur-[100px] rounded-full -top-24 -left-24" />
-        <motion.div
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="max-w-4xl mx-auto relative z-10"
-        >
-          <div className="flex items-center justify-between mb-8">
-            <Link
-              to="/"
-              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground text-xs font-black uppercase tracking-widest transition-colors group"
-            >
-              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" /> Voltar ao Dashboard
+      {/* Header Materio Style */}
+      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border px-6 py-4">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link to="/" className="hover:bg-secondary p-2 rounded-lg transition-colors">
+              <ArrowLeft className="w-5 h-5 text-muted-foreground" />
             </Link>
-            <ThemeToggle />
-          </div>
-          
-          <div className="flex flex-col md:flex-row md:items-center gap-6">
-            <div className="bg-brand-500/10 p-4 rounded-2xl border border-brand-500/20 brand-glow shrink-0 w-20 h-20 flex items-center justify-center">
-              <Rocket className="w-10 h-10 text-brand-500" />
+            <div className="materio-gradient p-2 rounded-lg shadow-materio-primary">
+              <Rocket className="w-5 h-5 text-white" />
             </div>
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-[10px] font-black bg-brand-500/10 text-brand-500 px-3 py-1 rounded-full uppercase tracking-[0.2em] border border-brand-500/10">
-                  {group.class}
-                </span>
-                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
-                  {completed}/{phases.length} Etapas Concluídas
-                </span>
-              </div>
-              <h1 className="text-4xl md:text-5xl font-black text-foreground dark:text-white tracking-tight mb-2">
-                {group.name}
-              </h1>
-              {group.members && group.members.length > 0 && (
-                <p className="text-muted-foreground text-sm italic font-medium">
-                  Integrantes: {group.members.join(", ")}
-                </p>
-              )}
+              <h1 className="text-lg font-bold tracking-tight text-foreground">{group.name}</h1>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none mt-1">{group.class}</p>
             </div>
           </div>
-        </motion.div>
+          <ThemeToggle />
+        </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-6 py-12 space-y-12">
-        <section className="glass-card rounded-3xl p-8 border-none shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-8 opacity-5">
-            <Trophy className="w-32 h-32 text-brand-500" />
-          </div>
-          
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-black text-foreground uppercase tracking-widest flex items-center gap-3">
-              <Target className="w-5 h-5 text-brand-500" /> Progresso da Jornada
-            </h2>
-            <span className="text-2xl font-black text-brand-500">{Math.round(progressPercent)}%</span>
-          </div>
-          
-          <div className="h-4 rounded-full bg-secondary overflow-hidden mb-12 border border-border">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${progressPercent}%` }}
-              transition={{ duration: 1, ease: "easeOut" }}
-              className="h-full bg-brand-500 brand-glow"
-            />
-          </div>
+      <main className="max-w-5xl mx-auto px-6 py-8 space-y-8">
+        {/* Progress Overview Card */}
+        <div className="materio-card rounded-xl p-8 relative overflow-hidden">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <Target className="w-5 h-5 text-brand-500" />
+                <h2 className="text-xl font-bold text-foreground tracking-tight">Progresso da Equipe</h2>
+              </div>
+              <p className="text-muted-foreground text-sm font-medium mb-6">
+                A equipe concluiu {completed} de {phases.length} etapas do projeto.
+              </p>
+              
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-xs font-bold uppercase tracking-widest">
+                  <span className="text-muted-foreground">Status Geral</span>
+                  <span className="text-brand-500">{Math.round(progressPercent)}% Concluído</span>
+                </div>
+                <div className="h-3 rounded-full bg-secondary overflow-hidden border border-border">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progressPercent}%` }}
+                    transition={{ duration: 1, ease: "easeOut" }}
+                    className="h-full bg-brand-500 shadow-materio-primary"
+                  />
+                </div>
+              </div>
+            </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {phases.map((phase, i) => {
-              const done = group.completedPhases[i];
-              return (
-                <motion.div
-                  key={phase.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  className={cn(
-                    "group relative p-5 rounded-2xl border transition-all flex items-center gap-4",
-                    done 
-                      ? "bg-brand-500/10 border-brand-500/20" 
-                      : "bg-secondary/20 border-border grayscale opacity-70"
-                  )}
-                >
+            <div className="bg-accent/50 border border-brand-500/20 p-6 rounded-xl flex flex-col items-center justify-center min-w-[160px] shadow-sm">
+              <Trophy className="w-8 h-8 text-brand-500 mb-2" />
+              <span className="text-2xl font-bold text-foreground">{completed}</span>
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Etapas</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Phases Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {phases.map((phase, i) => {
+            const done = group.completedPhases[i];
+            return (
+              <motion.div
+                key={phase.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                className={cn(
+                  "materio-card rounded-xl p-6 transition-all group flex flex-col justify-between",
+                  done ? "border-brand-500/30" : "opacity-75"
+                )}
+              >
+                <div className="flex items-start gap-4 mb-6">
                   <div className={cn(
-                    "w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border transition-all",
-                    done ? "bg-brand-500 border-brand-500 text-white brand-glow" : "bg-secondary border-border text-muted-foreground"
+                    "w-12 h-12 rounded-lg flex items-center justify-center shrink-0 border transition-all shadow-sm",
+                    done ? "bg-brand-500 border-brand-500 text-white shadow-materio-primary" : "bg-secondary border-border text-muted-foreground"
                   )}>
                     <PhaseIcon icon={phase.icon} className="w-6 h-6" />
                   </div>
                   
                   <div className="flex-1 min-w-0">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-0.5">Fase {i + 1}</p>
-                    <h3 className={cn("text-sm font-black uppercase tracking-tight truncate", done ? "text-foreground" : "text-muted-foreground")}>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Etapa {i + 1}</p>
+                    <h3 className={cn("text-base font-bold tracking-tight", done ? "text-foreground" : "text-muted-foreground")}>
                       {phase.title}
                     </h3>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Link
-                        to={`/fase/${phase.id}`}
-                        className="text-[9px] font-black uppercase tracking-widest text-brand-500 hover:underline flex items-center gap-1"
-                      >
-                        <Info className="w-3 h-3" /> Ver Detalhes
-                      </Link>
-                      <button 
-                        onClick={() => openPhaseDetails(phase, i)}
-                        className="text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground"
-                      >
-                        Resumo
-                      </button>
-                    </div>
                   </div>
 
                   <div className="shrink-0">
                     {done ? (
                       <CheckCircle2 className="w-6 h-6 text-brand-500" />
                     ) : (
-                      <Circle className="w-6 h-6 text-border" />
+                      <Circle className="w-6 h-6 text-muted/30" />
                     )}
                   </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </section>
+                </div>
+
+                <div className="flex items-center justify-between pt-4 border-t border-border">
+                  <Link
+                    to={`/fase/${phase.id}`}
+                    className="text-[10px] font-bold uppercase tracking-widest text-brand-500 hover:underline flex items-center gap-1.5"
+                  >
+                    <Info className="w-3.5 h-3.5" /> Detalhes da Etapa
+                  </Link>
+                  <button 
+                    onClick={() => openPhaseDetails(phase, i)}
+                    className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Resumo
+                  </button>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
       </main>
 
       <PhaseDetailDialog

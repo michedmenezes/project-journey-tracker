@@ -24,29 +24,31 @@ export default function PhaseTracker({ group }: PhaseTrackerProps) {
   };
 
   return (
-    <div className="glass-card rounded-xl p-6 transition-all hover:border-brand-500/30">
+    <div className="materio-card rounded-xl p-6 transition-all hover:-translate-y-1">
       <div className="flex items-start justify-between mb-6">
         <div className="flex-1 min-w-0 mr-4">
           <Link to={`/grupo/${group.id}`} className="hover:text-brand-500 transition-colors">
-            <h3 className="text-xl font-bold text-foreground truncate">{group.name}</h3>
+            <h3 className="text-xl font-bold text-foreground truncate tracking-tight">{group.name}</h3>
           </Link>
           {group.members && group.members.length > 0 && (
-            <p className="text-xs text-muted-foreground truncate mt-1 italic">
+            <p className="text-xs text-muted-foreground truncate mt-1 italic font-medium">
               {group.members.join(", ")}
             </p>
           )}
         </div>
         <div className="text-right shrink-0">
-          <span className="text-sm font-bold text-brand-500">
-            {completed}/{phases.length}
-          </span>
-          <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">etapas</p>
+          <div className="flex items-center gap-1.5 justify-end">
+            <span className="text-lg font-bold text-brand-500">
+              {completed}/{phases.length}
+            </span>
+          </div>
+          <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">etapas concluídas</p>
         </div>
       </div>
 
-      <div className="relative h-2 rounded-full bg-secondary overflow-hidden mb-8 border border-border">
+      <div className="relative h-2 rounded-full bg-secondary overflow-hidden mb-8">
         <motion.div
-          className="absolute inset-y-0 left-0 bg-brand-500 brand-glow rounded-full"
+          className="absolute inset-y-0 left-0 bg-brand-500 rounded-full shadow-materio-primary"
           initial={{ width: 0 }}
           animate={{ width: `${progress}%` }}
           transition={{ duration: 1, ease: "easeOut" }}
@@ -63,12 +65,12 @@ export default function PhaseTracker({ group }: PhaseTrackerProps) {
               <button
                 onClick={() => openPhaseDetails(phase, i)}
                 className={cn(
-                  "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 relative z-10",
+                  "w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 relative z-10",
                   isDone 
-                    ? "bg-brand-500 text-white brand-glow" 
+                    ? "bg-brand-500 text-white shadow-materio-primary" 
                     : isCurrent 
-                      ? "bg-secondary border-2 border-brand-500 text-brand-500" 
-                      : "bg-secondary/50 border border-border text-muted-foreground hover:border-brand-500/30"
+                      ? "bg-accent border-2 border-brand-500 text-brand-500" 
+                      : "bg-secondary text-muted-foreground hover:bg-brand-500/10 hover:text-brand-500"
                 )}
               >
                 <PhaseIcon icon={phase.icon} className="w-5 h-5" />

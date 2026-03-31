@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, CheckCircle2, Circle, Users, Target, ClipboardList, Trophy, XCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Circle, Users, Target, ClipboardList, Trophy, XCircle, Rocket } from "lucide-react";
 import PhaseIcon from "@/components/PhaseIcon";
 import ThemeToggle from "@/components/ThemeToggle";
 import { loadPhases, loadGroups, type Phase, type Group } from "@/lib/phases";
@@ -27,7 +27,7 @@ export default function PhasePage() {
         <div className="bg-red-500/10 p-4 rounded-2xl border border-red-500/20 mb-6">
           <XCircle className="w-12 h-12 text-red-500" />
         </div>
-        <h2 className="text-2xl font-black text-foreground mb-2">Etapa não encontrada</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-2 tracking-tight">Etapa não encontrada</h2>
         <Link to="/" className="text-brand-500 font-bold hover:underline uppercase tracking-widest text-xs">
           Voltar ao Dashboard
         </Link>
@@ -41,75 +41,71 @@ export default function PhasePage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-20 transition-colors duration-300">
-      <header
-        className="py-12 px-6 border-b border-border relative overflow-hidden"
-        style={{ background: "var(--gradient-hero)" }}
-      >
-        <div className="absolute inset-0 bg-brand-500/5 blur-[100px] rounded-full -top-24 -right-24" />
-        <div className="max-w-4xl mx-auto relative z-10">
-          <div className="flex items-center justify-between mb-8">
-            <Link
-              to="/"
-              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground text-xs font-black uppercase tracking-widest transition-colors group"
-            >
-              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" /> Voltar ao Dashboard
+      {/* Header Materio Style */}
+      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border px-6 py-4">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link to="/" className="hover:bg-secondary p-2 rounded-lg transition-colors">
+              <ArrowLeft className="w-5 h-5 text-muted-foreground" />
             </Link>
-            <ThemeToggle />
-          </div>
-          
-          <div className="flex flex-col md:flex-row md:items-center gap-6">
-            <div className="bg-brand-500/10 p-4 rounded-2xl border border-brand-500/20 brand-glow shrink-0 w-20 h-20 flex items-center justify-center">
-              <PhaseIcon icon={phase.icon} className="w-10 h-10 text-brand-500" />
+            <div className="materio-gradient p-2 rounded-lg shadow-materio-primary">
+              <PhaseIcon icon={phase.icon} className="w-5 h-5 text-white" />
             </div>
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-[10px] font-black bg-brand-500/10 text-brand-500 px-3 py-1 rounded-full uppercase tracking-[0.2em] border border-brand-500/10">
-                  Etapa {phaseIndex + 1}
-                </span>
-                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
-                  {phase.stage}
-                </span>
-              </div>
-              <h1 className="text-4xl md:text-5xl font-black text-foreground dark:text-white tracking-tight">
-                {phase.title}
-              </h1>
+              <h1 className="text-lg font-bold tracking-tight text-foreground">{phase.title}</h1>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none mt-1">Etapa {phaseIndex + 1}</p>
             </div>
           </div>
+          <ThemeToggle />
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-6 py-12 space-y-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="md:col-span-2 space-y-12">
-            <section className="space-y-4">
-              <div className="flex items-center gap-3 mb-6">
-                <Target className="w-5 h-5 text-brand-500" />
-                <h2 className="text-xl font-black text-foreground uppercase tracking-widest">O que é esta etapa?</h2>
+      <main className="max-w-6xl mx-auto px-6 py-8 space-y-8">
+        {/* Phase Hero Card */}
+        <div className="materio-card rounded-xl p-8 materio-gradient relative overflow-hidden">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div className="flex-1 text-white">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest border border-white/30">
+                  {phase.stage}
+                </span>
               </div>
-              <div className="glass-card rounded-2xl p-8 border-none shadow-xl leading-relaxed text-foreground dark:text-zinc-300 font-medium">
+              <h2 className="text-3xl font-bold mb-4 tracking-tight">{phase.title}</h2>
+              <p className="text-white/80 text-sm font-medium leading-relaxed max-w-2xl">
                 {phase.description || "Nenhuma descrição disponível para esta etapa."}
-              </div>
-            </section>
+              </p>
+            </div>
 
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-xl flex flex-col items-center justify-center min-w-[180px] text-white">
+              <Trophy className="w-8 h-8 text-white mb-2" />
+              <span className="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-1">Entrega Requerida</span>
+              <p className="text-sm font-bold text-center leading-snug">{phase.delivery}</p>
+            </div>
+          </div>
+          <PhaseIcon icon={phase.icon} className="absolute -right-8 -bottom-8 w-48 h-48 text-white/10 -rotate-12" />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
             <section className="space-y-6">
-              <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center gap-3 mb-4">
                 <ClipboardList className="w-5 h-5 text-brand-500" />
-                <h2 className="text-xl font-black text-foreground uppercase tracking-widest">Missões da Equipe</h2>
+                <h2 className="text-xl font-bold text-foreground uppercase tracking-widest">Missões da Equipe</h2>
               </div>
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-4">
                 {phase.missions && phase.missions.length > 0 ? (
                   phase.missions.map((mission, i) => (
                     <motion.div
                       key={i}
-                      initial={{ opacity: 0, x: -20 }}
+                      initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.1 }}
-                      className="glass-card rounded-xl p-5 border-none flex items-start gap-4 hover:bg-secondary/10 transition-all"
+                      className="materio-card rounded-xl p-5 flex items-start gap-4 hover:bg-accent/5 transition-all"
                     >
-                      <div className="bg-brand-500/10 text-brand-500 w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs shrink-0 border border-brand-500/10">
+                      <div className="bg-brand-500 text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 shadow-sm shadow-brand-500/20">
                         {i + 1}
                       </div>
-                      <p className="text-foreground dark:text-zinc-200 font-bold leading-snug pt-1">{mission}</p>
+                      <p className="text-foreground font-medium leading-relaxed pt-1">{mission}</p>
                     </motion.div>
                   ))
                 ) : (
@@ -120,33 +116,25 @@ export default function PhasePage() {
           </div>
 
           <aside className="space-y-8">
-            <section className="glass-card rounded-2xl p-6 border-none shadow-xl bg-brand-500/5 border border-brand-500/10">
-              <h3 className="text-xs font-black text-brand-500 uppercase tracking-[0.2em] mb-4">Entrega Requerida</h3>
-              <div className="flex items-start gap-3">
-                <Trophy className="w-5 h-5 text-brand-500 shrink-0 mt-0.5" />
-                <p className="text-sm font-black text-foreground dark:text-white leading-relaxed">
-                  {phase.delivery}
-                </p>
+            <section className="materio-card rounded-xl p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Progresso das Equipes</h3>
+                <span className="text-sm font-bold text-brand-500">{Math.round(progressPercent)}%</span>
               </div>
-            </section>
-
-            <section className="glass-card rounded-2xl p-6 border-none shadow-xl">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Status das Equipes</h3>
-                <span className="text-xs font-black text-brand-500">{Math.round(progressPercent)}%</span>
-              </div>
-              <div className="h-2 rounded-full bg-secondary overflow-hidden mb-6 border border-border">
+              
+              <div className="h-2 rounded-full bg-secondary overflow-hidden mb-8">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${progressPercent}%` }}
-                  className="h-full bg-brand-500 brand-glow"
+                  className="h-full bg-brand-500 shadow-materio-primary"
                 />
               </div>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-4 border-b border-border pb-2">
+
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground border-b border-border pb-2">
                   <Users className="w-3.5 h-3.5" /> Listagem de Grupos
                 </div>
-                <div className="max-h-[300px] overflow-y-auto pr-2 space-y-2 custom-scrollbar">
+                <div className="max-h-[400px] overflow-y-auto pr-2 space-y-2 custom-scrollbar">
                   {groups.map((group) => {
                     const isDone = group.completedPhases[phaseIndex];
                     return (
@@ -154,10 +142,10 @@ export default function PhasePage() {
                         key={group.id}
                         to={`/grupo/${group.id}`}
                         className={cn(
-                          "flex items-center justify-between p-3 rounded-xl border transition-all text-[10px] font-black uppercase tracking-widest",
+                          "flex items-center justify-between p-3 rounded-lg border transition-all text-[10px] font-bold uppercase tracking-widest",
                           isDone 
                             ? "bg-brand-500/10 border-brand-500/20 text-brand-500" 
-                            : "bg-secondary/20 border-border text-muted-foreground hover:border-brand-500/30"
+                            : "bg-secondary/30 border-border text-muted-foreground hover:bg-secondary/50"
                         )}
                       >
                         <span className="truncate mr-2">{group.name}</span>
