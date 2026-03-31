@@ -50,12 +50,12 @@ export default function PhaseDetailDialog({
             <div
               className={cn(
                 "w-12 h-12 rounded-full flex items-center justify-center",
-                phaseBgClasses[phaseIndex]
+                phaseBgClasses[phaseIndex % phaseBgClasses.length]
               )}
             >
               <PhaseIcon
                 icon={phase.icon}
-                className={cn("w-6 h-6", phaseColorClasses[phaseIndex])}
+                className={cn("w-6 h-6", phaseColorClasses[phaseIndex % phaseColorClasses.length])}
               />
             </div>
             <div>
