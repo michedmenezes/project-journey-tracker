@@ -60,7 +60,7 @@ export default function PhaseDetailDialog({
             </div>
             <div>
               <DialogTitle className="font-display text-xl">
-                Fase {phase.id}: {phase.title}
+                Fase {phaseIndex + 1}: {phase.title}
               </DialogTitle>
               <DialogDescription className="text-sm">
                 Etapa: {phase.stage}
