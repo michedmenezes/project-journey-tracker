@@ -32,7 +32,7 @@ export default {
           600: '#7c3aed', // Hover
           700: '#6d28d9',
         },
-        surface: '#18181b', // Cor para cards e inputs
+        surface: "hsl(var(--surface-color))",
         primary: {
           DEFAULT: "#8b5cf6",
           foreground: "#ffffff",
@@ -60,13 +60,6 @@ export default {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
-        },
-        phase: {
-          1: "#8b5cf6",
-          2: "#7c3aed",
-          3: "#6d28d9",
-          4: "#5b21b6",
-          5: "#4c1d95",
         },
       },
       borderRadius: {

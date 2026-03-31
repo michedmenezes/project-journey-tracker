@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ShieldCheck, Filter, Trophy, Users, LayoutGrid, Rocket } from "lucide-react";
 import PhaseTracker from "@/components/PhaseTracker";
 import PhaseTrackerCondensed from "@/components/PhaseTrackerCondensed";
+import ThemeToggle from "@/components/ThemeToggle";
 import { loadGroups, loadPhases, type Group, type Phase } from "@/lib/phases";
 import { Button } from "@/components/ui/button";
 import {
@@ -59,9 +60,9 @@ export default function Dashboard() {
   }, [groups, selectedClass, viewMode]);
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-zinc-50 pb-12">
+    <div className="min-h-screen bg-background text-foreground pb-12 transition-colors duration-300">
       <header
-        className="py-10 px-6 border-b border-white/5 relative overflow-hidden"
+        className="py-10 px-6 border-b border-border relative overflow-hidden"
         style={{ background: "var(--gradient-hero)" }}
       >
         <div className="absolute inset-0 bg-brand-500/5 blur-[100px] rounded-full -top-24 -left-24" />
@@ -71,14 +72,15 @@ export default function Dashboard() {
               <Rocket className="w-8 h-8 text-brand-500" />
             </div>
             <div>
-              <h1 className="text-3xl font-black tracking-tight text-white">Jornada do Projeto</h1>
-              <p className="text-zinc-500 text-xs font-bold uppercase tracking-[0.2em] mt-1">Acompanhamento de Progresso</p>
+              <h1 className="text-3xl font-black tracking-tight text-foreground dark:text-white">Jornada do Projeto</h1>
+              <p className="text-muted-foreground text-xs font-bold uppercase tracking-[0.2em] mt-1">Acompanhamento de Progresso</p>
             </div>
           </div>
           
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <Link to="/admin">
-              <Button variant="outline" size="sm" className="bg-white/5 border-white/10 hover:bg-white/10 text-zinc-300 gap-2 rounded-xl">
+              <Button variant="outline" size="sm" className="bg-background/50 border-border hover:bg-accent text-foreground gap-2 rounded-xl">
                 <ShieldCheck className="w-4 h-4" /> Admin
               </Button>
             </Link>
@@ -87,16 +89,16 @@ export default function Dashboard() {
       </header>
 
       <main className="max-w-6xl mx-auto px-6 py-10 space-y-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 glass-card p-4 rounded-2xl border border-white/5 shadow-xl">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 glass-card p-4 rounded-2xl">
           <div className="flex items-center gap-4 w-full sm:w-auto">
-            <div className="flex items-center gap-3 bg-zinc-900/50 px-4 py-2 rounded-xl border border-white/5">
-              <Filter className="w-4 h-4 text-zinc-500" />
-              <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">Turma:</span>
+            <div className="flex items-center gap-3 bg-secondary/50 px-4 py-2 rounded-xl border border-border">
+              <Filter className="w-4 h-4 text-muted-foreground" />
+              <span className="text-xs font-black text-muted-foreground uppercase tracking-widest">Turma:</span>
               <Select value={selectedClass} onValueChange={setSelectedClass}>
-                <SelectTrigger className="h-8 w-[160px] border-none bg-transparent shadow-none focus:ring-0 text-zinc-200 font-bold">
+                <SelectTrigger className="h-8 w-[160px] border-none bg-transparent shadow-none focus:ring-0 text-foreground font-bold">
                   <SelectValue placeholder="Filtrar" />
                 </SelectTrigger>
-                <SelectContent className="bg-zinc-900 border-white/10 text-zinc-200">
+                <SelectContent className="bg-popover border-border text-popover-foreground">
                   <SelectItem value="all">Todas as turmas</SelectItem>
                   {classes.map((c) => (
                     <SelectItem key={c} value={c}>{c}</SelectItem>
@@ -106,12 +108,12 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="flex items-center bg-zinc-900/50 p-1.5 rounded-xl border border-white/5">
+          <div className="flex items-center bg-secondary/50 p-1.5 rounded-xl border border-border">
             <button
               onClick={() => setViewMode("grid")}
               className={cn(
                 "flex items-center gap-2 px-5 py-2 rounded-lg text-xs font-black transition-all uppercase tracking-widest",
-                viewMode === "grid" ? "bg-brand-500 text-white brand-glow" : "text-zinc-500 hover:text-zinc-300"
+                viewMode === "grid" ? "bg-brand-500 text-white brand-glow" : "text-muted-foreground hover:text-foreground"
               )}
             >
               <LayoutGrid className="w-4 h-4" /> Grade
@@ -120,7 +122,7 @@ export default function Dashboard() {
               onClick={() => setViewMode("ranking")}
               className={cn(
                 "flex items-center gap-2 px-5 py-2 rounded-lg text-xs font-black transition-all uppercase tracking-widest",
-                viewMode === "ranking" ? "bg-brand-500 text-white brand-glow" : "text-zinc-500 hover:text-zinc-300"
+                viewMode === "ranking" ? "bg-brand-500 text-white brand-glow" : "text-muted-foreground hover:text-foreground"
               )}
             >
               <Trophy className="w-4 h-4" /> Ranking
@@ -129,10 +131,10 @@ export default function Dashboard() {
         </div>
 
         {filteredGroups.length === 0 ? (
-          <div className="text-center py-24 glass-card rounded-3xl border-2 border-dashed border-white/5">
-            <Users className="w-16 h-16 mx-auto text-zinc-800 mb-6" />
-            <h3 className="text-xl font-bold text-zinc-400">Nenhuma equipe encontrada</h3>
-            <p className="text-zinc-600 text-sm mt-2">O professor ainda não cadastrou equipes para esta seleção.</p>
+          <div className="text-center py-24 glass-card rounded-3xl border-2 border-dashed border-border">
+            <Users className="w-16 h-16 mx-auto text-muted mb-6" />
+            <h3 className="text-xl font-bold text-muted-foreground">Nenhuma equipe encontrada</h3>
+            <p className="text-muted-foreground/60 text-sm mt-2">O professor ainda não cadastrou equipes para esta seleção.</p>
           </div>
         ) : (
           <div className={cn(

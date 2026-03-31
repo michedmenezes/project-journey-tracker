@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Plus, Trash2, ArrowLeft, Lock, ShieldCheck, Pencil, Check, X, Filter, LogOut, FileUp, Download } from "lucide-react";
 import PhaseIcon from "@/components/PhaseIcon";
+import ThemeToggle from "@/components/ThemeToggle";
 import { loadPhases, savePhases, loadGroups, saveGroups, AVAILABLE_ICONS, type Phase, type Group } from "@/lib/phases";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -269,7 +270,7 @@ export default function AdminPanel() {
 
   if (!authenticated) {
     return (
-      <div className="min-h-screen bg-[#09090b] flex items-center justify-center px-4">
+      <div className="min-h-screen bg-background flex items-center justify-center px-4 transition-colors duration-300">
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -278,8 +279,8 @@ export default function AdminPanel() {
           <div className="bg-brand-500/10 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-brand-500/20 brand-glow">
             <Lock className="w-8 h-8 text-brand-500" />
           </div>
-          <h2 className="text-2xl font-black text-white mb-2">Painel do Professor</h2>
-          <p className="text-zinc-500 text-sm mb-8 font-medium uppercase tracking-widest">Digite a senha para acessar</p>
+          <h2 className="text-2xl font-black text-foreground mb-2">Painel do Professor</h2>
+          <p className="text-muted-foreground text-sm mb-8 font-medium uppercase tracking-widest">Digite a senha para acessar</p>
           <Input
             type="password"
             placeholder="Senha de acesso"
@@ -289,49 +290,55 @@ export default function AdminPanel() {
               setError(false);
             }}
             onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-            className={cn("mb-4 bg-zinc-900 border-white/5 rounded-xl text-center font-bold tracking-widest h-12", error && "border-red-500/50")}
+            className={cn("mb-4 bg-secondary/50 border-border rounded-xl text-center font-bold tracking-widest h-12", error && "border-red-500/50")}
           />
           {error && <p className="text-red-500 text-xs mb-4 font-bold">Senha incorreta</p>}
           <Button onClick={handleLogin} className="w-full bg-brand-500 hover:bg-brand-600 text-white font-black rounded-xl h-12 brand-glow">
             Entrar no Painel
           </Button>
+          <div className="mt-6 flex justify-center">
+            <ThemeToggle />
+          </div>
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#09090b]">
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
       <header
-        className="py-10 px-6 border-b border-white/5 relative overflow-hidden"
+        className="py-10 px-6 border-b border-border relative overflow-hidden"
         style={{ background: "var(--gradient-hero)" }}
       >
         <div className="max-w-5xl mx-auto flex items-center justify-between relative z-10">
           <div className="flex items-center gap-4">
-            <Link to="/" className="hover:bg-white/5 p-2 rounded-xl transition-colors">
-              <ArrowLeft className="w-6 h-6 text-zinc-400" />
+            <Link to="/" className="hover:bg-secondary/50 p-2 rounded-xl transition-colors">
+              <ArrowLeft className="w-6 h-6 text-muted-foreground" />
             </Link>
             <div className="bg-brand-500/10 p-2 rounded-xl border border-brand-500/20">
               <ShieldCheck className="w-7 h-7 text-brand-500" />
             </div>
-            <h1 className="text-2xl font-black text-white tracking-tight">Painel do Professor</h1>
+            <h1 className="text-2xl font-black text-foreground dark:text-white tracking-tight">Painel do Professor</h1>
           </div>
-          <Button variant="ghost" size="sm" onClick={handleLogout} className="text-zinc-400 hover:text-white hover:bg-white/5 gap-2 rounded-xl font-bold">
-            <LogOut className="w-4 h-4" /> Sair
-          </Button>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="text-muted-foreground hover:text-foreground hover:bg-secondary/50 gap-2 rounded-xl font-bold">
+              <LogOut className="w-4 h-4" /> Sair
+            </Button>
+          </div>
         </div>
       </header>
 
       <main className="max-w-5xl mx-auto px-6 py-10 space-y-10">
         <Accordion type="single" collapsible>
           <AccordionItem value="phases" className="glass-card rounded-2xl px-6 border-none overflow-hidden">
-            <AccordionTrigger className="text-lg font-black text-white hover:no-underline py-6">
+            <AccordionTrigger className="text-lg font-black text-foreground hover:no-underline py-6">
               ⚙️ Gerenciar Etapas do Projeto ({phases.length})
             </AccordionTrigger>
             <AccordionContent>
               <div className="space-y-4 pb-6">
                 {phases.map((phase, pi) => (
-                  <div key={phase.id} className="rounded-xl bg-zinc-900/50 border border-white/5 p-4 transition-all hover:border-white/10">
+                  <div key={phase.id} className="rounded-xl bg-secondary/30 border border-border p-4 transition-all hover:border-brand-500/30">
                     {editingPhaseId === phase.id ? (
                       <PhaseForm
                         form={editForm}
@@ -342,14 +349,14 @@ export default function AdminPanel() {
                       />
                     ) : (
                       <div className="flex items-center gap-4">
-                        <div className="bg-zinc-800 p-2 rounded-xl border border-white/5">
-                          <PhaseIcon icon={phase.icon} className="w-5 h-5 text-zinc-400" />
+                        <div className="bg-secondary p-2 rounded-xl border border-border">
+                          <PhaseIcon icon={phase.icon} className="w-5 h-5 text-muted-foreground" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <span className="font-black text-sm text-white uppercase tracking-wider">
+                          <span className="font-black text-sm text-foreground uppercase tracking-wider">
                             Fase {pi + 1}: {phase.title}
                           </span>
-                          <p className="text-xs text-zinc-500 font-bold uppercase tracking-widest mt-0.5">
+                          <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest mt-0.5">
                             {phase.stage} — {phase.delivery}
                           </p>
                         </div>
@@ -364,7 +371,7 @@ export default function AdminPanel() {
                             variant="ghost"
                             size="icon"
                             onClick={() => startEditPhase(phase)}
-                            className="h-9 w-9 rounded-xl hover:bg-white/5 text-zinc-400"
+                            className="h-9 w-9 rounded-xl hover:bg-secondary text-muted-foreground"
                           >
                             <Pencil className="w-4 h-4" />
                           </Button>
@@ -372,7 +379,7 @@ export default function AdminPanel() {
                             variant="ghost"
                             size="icon"
                             onClick={() => removePhase(pi)}
-                            className="h-9 w-9 rounded-xl hover:bg-red-500/10 text-zinc-500 hover:text-red-500"
+                            className="h-9 w-9 rounded-xl hover:bg-red-500/10 text-muted-foreground hover:text-red-500"
                             disabled={phases.length <= 1}
                           >
                             <Trash2 className="w-4 h-4" />
@@ -399,7 +406,7 @@ export default function AdminPanel() {
                 ) : (
                   <Button
                     variant="outline"
-                    className="w-full gap-2 border-dashed border-white/10 bg-white/5 hover:bg-white/10 rounded-xl h-12 font-black text-zinc-400 uppercase tracking-widest text-xs"
+                    className="w-full gap-2 border-dashed border-border bg-secondary/20 hover:bg-secondary/50 rounded-xl h-12 font-black text-muted-foreground uppercase tracking-widest text-xs"
                     onClick={() => setShowNewPhase(true)}
                   >
                     <Plus className="w-4 h-4" /> Nova Etapa
@@ -412,14 +419,14 @@ export default function AdminPanel() {
 
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-            <h2 className="text-2xl font-black text-white tracking-tight">Equipes por Turma</h2>
-            <div className="flex items-center gap-3 w-full sm:w-auto glass-card px-4 py-2 rounded-xl border border-white/5">
-              <Filter className="w-4 h-4 text-zinc-500" />
+            <h2 className="text-2xl font-black text-foreground tracking-tight">Equipes por Turma</h2>
+            <div className="flex items-center gap-3 w-full sm:w-auto glass-card px-4 py-2 rounded-xl border border-border">
+              <Filter className="w-4 h-4 text-muted-foreground" />
               <Select value={selectedClassFilter} onValueChange={setSelectedClassFilter}>
-                <SelectTrigger className="w-full sm:w-[200px] border-none bg-transparent shadow-none focus:ring-0 text-zinc-300 font-bold">
+                <SelectTrigger className="w-full sm:w-[200px] border-none bg-transparent shadow-none focus:ring-0 text-foreground font-bold">
                   <SelectValue placeholder="Filtrar por turma" />
                 </SelectTrigger>
-                <SelectContent className="bg-zinc-900 border-white/10 text-zinc-200">
+                <SelectContent className="bg-popover border-border text-popover-foreground">
                   <SelectItem value="all">Todas as turmas</SelectItem>
                   {classes.map((c) => (
                     <SelectItem key={c} value={c}>{c}</SelectItem>
@@ -431,9 +438,9 @@ export default function AdminPanel() {
 
           <div className="glass-card rounded-2xl p-8 space-y-8 border-none shadow-2xl">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-black text-white uppercase tracking-widest">Gerenciar Equipes</p>
+              <p className="text-sm font-black text-foreground uppercase tracking-widest">Gerenciar Equipes</p>
               <div className="flex gap-3">
-                <Button variant="outline" size="sm" onClick={downloadCSVTemplate} className="text-[10px] font-black uppercase tracking-widest gap-2 h-9 rounded-xl bg-white/5 border-white/10 text-zinc-400 hover:text-white">
+                <Button variant="outline" size="sm" onClick={downloadCSVTemplate} className="text-[10px] font-black uppercase tracking-widest gap-2 h-9 rounded-xl bg-secondary/50 border-border text-muted-foreground hover:text-foreground">
                   <Download className="w-3.5 h-3.5" /> Modelo CSV
                 </Button>
                 <div className="relative">
@@ -450,20 +457,20 @@ export default function AdminPanel() {
               </div>
             </div>
             
-            <div className="pt-8 border-t border-white/5">
-              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-4">Adicionar Individualmente</p>
+            <div className="pt-8 border-t border-border">
+              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-4">Adicionar Individualmente</p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Input
                   placeholder="Nome da equipe (ex: Alpha)"
                   value={newGroupName}
                   onChange={(e) => setNewGroupName(e.target.value)}
-                  className="flex-1 h-11 bg-zinc-900 border-white/5 rounded-xl text-sm font-bold"
+                  className="flex-1 h-11 bg-secondary/30 border-border rounded-xl text-sm font-bold"
                 />
                 <Input
                   placeholder="Turma (ex: 8º Ano A)"
                   value={newGroupClass}
                   onChange={(e) => setNewGroupClass(e.target.value)}
-                  className="w-full sm:w-[220px] h-11 bg-zinc-900 border-white/5 rounded-xl text-sm font-bold"
+                  className="w-full sm:w-[220px] h-11 bg-secondary/30 border-border rounded-xl text-sm font-bold"
                 />
                 <Button onClick={addGroup} className="gap-2 h-11 px-8 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-black brand-glow">
                   <Plus className="w-4 h-4" /> Adicionar
@@ -473,7 +480,7 @@ export default function AdminPanel() {
           </div>
 
           {filteredGroups.length === 0 && (
-            <p className="text-center text-zinc-600 py-16 glass-card rounded-2xl border-2 border-dashed border-white/5 font-bold italic">
+            <p className="text-center text-muted-foreground py-16 glass-card rounded-2xl border-2 border-dashed border-border font-bold italic">
               Nenhum grupo encontrado para esta seleção.
             </p>
           )}
@@ -485,17 +492,17 @@ export default function AdminPanel() {
                 initial={{ y: 15, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: gi * 0.05 }}
-                className="glass-card rounded-2xl p-6 border-none shadow-xl hover:bg-surface/80 transition-all"
+                className="glass-card rounded-2xl p-6 border-none shadow-xl hover:bg-secondary/10 transition-all"
               >
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex-1 min-w-0 mr-4">
-                    <h3 className="text-lg font-black text-white tracking-tight truncate">{group.name}</h3>
+                    <h3 className="text-lg font-black text-foreground tracking-tight truncate">{group.name}</h3>
                     <div className="flex flex-wrap items-center gap-3 mt-2">
                       <span className="text-[9px] font-black bg-brand-500/10 text-brand-500 px-2.5 py-1 rounded-lg uppercase tracking-widest border border-brand-500/10">
                         {group.class}
                       </span>
                       {group.members && group.members.length > 0 && (
-                        <p className="text-[10px] text-zinc-500 italic truncate font-medium">
+                        <p className="text-[10px] text-muted-foreground italic truncate font-medium">
                           {group.members.join(", ")}
                         </p>
                       )}
@@ -505,7 +512,7 @@ export default function AdminPanel() {
                     variant="ghost"
                     size="icon"
                     onClick={() => removeGroup(group.id)}
-                    className="h-9 w-9 rounded-xl hover:bg-red-500/10 text-zinc-600 hover:text-red-500"
+                    className="h-9 w-9 rounded-xl hover:bg-red-500/10 text-muted-foreground hover:text-red-500"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -521,12 +528,12 @@ export default function AdminPanel() {
                           "flex items-center gap-4 p-3 rounded-xl cursor-pointer transition-all border text-xs font-bold uppercase tracking-wider",
                           done
                             ? "bg-brand-500/10 border-brand-500/20 text-brand-500"
-                            : "bg-zinc-900/50 border-white/5 text-zinc-500 hover:border-white/10 hover:bg-zinc-800"
+                            : "bg-secondary/20 border-border text-muted-foreground hover:border-brand-500/30 hover:bg-secondary/40"
                         )}
                       >
                         <div className={cn(
                           "w-5 h-5 rounded-md flex items-center justify-center border transition-all",
-                          done ? "bg-brand-500 border-brand-500 text-white" : "border-white/10 bg-zinc-900"
+                          done ? "bg-brand-500 border-brand-500 text-white" : "border-border bg-secondary"
                         )}>
                           {done && <Check className="w-3.5 h-3.5" />}
                         </div>
@@ -536,7 +543,7 @@ export default function AdminPanel() {
                           onChange={() => togglePhase(group.id, pi)}
                           className="hidden"
                         />
-                        <PhaseIcon icon={phase.icon} className={cn("w-4 h-4 shrink-0", done ? "text-brand-500" : "text-zinc-600")} />
+                        <PhaseIcon icon={phase.icon} className={cn("w-4 h-4 shrink-0", done ? "text-brand-500" : "text-muted-foreground")} />
                         <span className="flex-1 truncate">
                           Fase {pi + 1}: {phase.title}
                         </span>
@@ -569,45 +576,45 @@ function PhaseForm({ form, onChange, onSave, onCancel, saveLabel }: PhaseFormPro
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Título da Fase</label>
+          <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Título da Fase</label>
           <Input
             placeholder="Ex: Investigadores"
             value={form.title}
             onChange={set("title")}
-            className="h-11 bg-zinc-900 border-white/5 rounded-xl font-bold"
+            className="h-11 bg-secondary/30 border-border rounded-xl font-bold"
           />
         </div>
         <div className="space-y-2">
-          <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Etapa do Projeto</label>
+          <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Etapa do Projeto</label>
           <Input
             placeholder="Ex: Ideação"
             value={form.stage}
             onChange={set("stage")}
-            className="h-11 bg-zinc-900 border-white/5 rounded-xl font-bold"
+            className="h-11 bg-secondary/30 border-border rounded-xl font-bold"
           />
         </div>
       </div>
       <div className="space-y-2">
-        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Entrega Requerida</label>
+        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Entrega Requerida</label>
         <Input
           placeholder="O que o grupo deve entregar?"
           value={form.delivery}
           onChange={set("delivery")}
-          className="h-11 bg-zinc-900 border-white/5 rounded-xl font-bold"
+          className="h-11 bg-secondary/30 border-border rounded-xl font-bold"
         />
       </div>
       <div className="space-y-2">
-        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Descrição Detalhada</label>
+        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Descrição Detalhada</label>
         <textarea
           placeholder="Explique o que acontece nesta fase..."
           value={form.description}
           onChange={set("description")}
           rows={3}
-          className="w-full rounded-xl border border-white/5 bg-zinc-900 px-4 py-3 text-sm font-medium ring-offset-background placeholder:text-zinc-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 resize-none text-zinc-200"
+          className="w-full rounded-xl border border-border bg-secondary/30 px-4 py-3 text-sm font-medium ring-offset-background placeholder:text-muted-foreground/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 resize-none text-foreground"
         />
       </div>
       <div className="space-y-2">
-        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">
+        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
           Missões <span className="font-medium lowercase">(uma por linha)</span>
         </label>
         <textarea
@@ -615,11 +622,11 @@ function PhaseForm({ form, onChange, onSave, onCancel, saveLabel }: PhaseFormPro
           value={form.missions}
           onChange={set("missions")}
           rows={4}
-          className="w-full rounded-xl border border-white/5 bg-zinc-900 px-4 py-3 text-sm font-medium ring-offset-background placeholder:text-zinc-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 resize-none text-zinc-200"
+          className="w-full rounded-xl border border-border bg-secondary/30 px-4 py-3 text-sm font-medium ring-offset-background placeholder:text-muted-foreground/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 resize-none text-foreground"
         />
       </div>
       <div className="space-y-4">
-        <label className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Ícone Representativo</label>
+        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Ícone Representativo</label>
         <div className="flex flex-wrap gap-2">
           {AVAILABLE_ICONS.map((icon) => (
             <button
@@ -630,7 +637,7 @@ function PhaseForm({ form, onChange, onSave, onCancel, saveLabel }: PhaseFormPro
                 "w-10 h-10 rounded-xl flex items-center justify-center border transition-all",
                 form.icon === icon
                   ? "border-brand-500 bg-brand-500/10 text-brand-500 brand-glow"
-                  : "border-white/5 bg-zinc-900 text-zinc-600 hover:border-white/10 hover:text-zinc-400"
+                  : "border-border bg-secondary text-muted-foreground hover:border-brand-500/30 hover:text-foreground"
               )}
             >
               <PhaseIcon icon={icon} className="w-5 h-5" />
@@ -642,7 +649,7 @@ function PhaseForm({ form, onChange, onSave, onCancel, saveLabel }: PhaseFormPro
         <Button onClick={onSave} className="bg-brand-500 hover:bg-brand-600 text-white font-black px-8 rounded-xl h-11 brand-glow">
           <Check className="w-4 h-4 mr-2" /> {saveLabel}
         </Button>
-        <Button variant="ghost" onClick={onCancel} className="text-zinc-500 hover:text-white hover:bg-white/5 font-bold rounded-xl h-11 px-6">
+        <Button variant="ghost" onClick={onCancel} className="text-muted-foreground hover:text-foreground hover:bg-secondary/50 font-bold rounded-xl h-11 px-6">
           <X className="w-4 h-4 mr-2" /> Cancelar
         </Button>
       </div>

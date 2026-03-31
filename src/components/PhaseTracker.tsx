@@ -24,14 +24,14 @@ export default function PhaseTracker({ group }: PhaseTrackerProps) {
   };
 
   return (
-    <div className="glass-card rounded-xl p-6 transition-all hover:border-white/20">
+    <div className="glass-card rounded-xl p-6 transition-all hover:border-brand-500/30">
       <div className="flex items-start justify-between mb-6">
         <div className="flex-1 min-w-0 mr-4">
           <Link to={`/grupo/${group.id}`} className="hover:text-brand-500 transition-colors">
-            <h3 className="text-xl font-bold text-zinc-50 truncate">{group.name}</h3>
+            <h3 className="text-xl font-bold text-foreground truncate">{group.name}</h3>
           </Link>
           {group.members && group.members.length > 0 && (
-            <p className="text-xs text-zinc-400 truncate mt-1 italic">
+            <p className="text-xs text-muted-foreground truncate mt-1 italic">
               {group.members.join(", ")}
             </p>
           )}
@@ -40,11 +40,11 @@ export default function PhaseTracker({ group }: PhaseTrackerProps) {
           <span className="text-sm font-bold text-brand-500">
             {completed}/{phases.length}
           </span>
-          <p className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold">etapas</p>
+          <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">etapas</p>
         </div>
       </div>
 
-      <div className="relative h-2 rounded-full bg-zinc-800 overflow-hidden mb-8">
+      <div className="relative h-2 rounded-full bg-secondary overflow-hidden mb-8 border border-border">
         <motion.div
           className="absolute inset-y-0 left-0 bg-brand-500 brand-glow rounded-full"
           initial={{ width: 0 }}
@@ -67,8 +67,8 @@ export default function PhaseTracker({ group }: PhaseTrackerProps) {
                   isDone 
                     ? "bg-brand-500 text-white brand-glow" 
                     : isCurrent 
-                      ? "bg-zinc-800 border-2 border-brand-500 text-brand-500" 
-                      : "bg-zinc-900 border border-white/5 text-zinc-600 hover:border-white/20"
+                      ? "bg-secondary border-2 border-brand-500 text-brand-500" 
+                      : "bg-secondary/50 border border-border text-muted-foreground hover:border-brand-500/30"
                 )}
               >
                 <PhaseIcon icon={phase.icon} className="w-5 h-5" />
@@ -85,7 +85,7 @@ export default function PhaseTracker({ group }: PhaseTrackerProps) {
                 to={`/fase/${phase.id}`}
                 className={cn(
                   "mt-3 text-[10px] font-bold uppercase tracking-wider transition-colors max-w-[64px] text-center leading-tight",
-                  isDone ? "text-brand-500" : isCurrent ? "text-zinc-300" : "text-zinc-600"
+                  isDone ? "text-brand-500" : isCurrent ? "text-foreground" : "text-muted-foreground"
                 )}
               >
                 {phase.title}

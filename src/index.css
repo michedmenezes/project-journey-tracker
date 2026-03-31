@@ -6,6 +6,42 @@
 
 @layer base {
   :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+
+    --primary: 263.4 70% 50.4%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 263.4 70% 50.4%;
+
+    --radius: 0.75rem;
+
+    --surface-color: 240 4.8% 95.9%;
+    --glass-bg: 255 255 255 / 0.6;
+    --glass-border: 0 0 0 / 0.1;
+  }
+
+  .dark {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
 
@@ -34,16 +70,9 @@
     --input: 240 3.7% 15.9%;
     --ring: 263.4 70% 50.4%;
 
-    --radius: 0.75rem;
-
-    --phase-1: 263 70% 50%;
-    --phase-2: 270 70% 50%;
-    --phase-3: 280 70% 50%;
-    --phase-4: 290 70% 50%;
-    --phase-5: 300 70% 50%;
-
-    --gradient-hero: linear-gradient(135deg, #09090b 0%, #18181b 100%);
-    --gradient-phase: linear-gradient(90deg, #8b5cf6, #7c3aed, #6d28d9);
+    --surface-color: 240 3.7% 15.9%;
+    --glass-bg: 24 24 27 / 0.6;
+    --glass-border: 255 255 255 / 0.1;
   }
 }
 
@@ -52,7 +81,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-[#09090b] text-zinc-50 antialiased;
+    @apply bg-background text-foreground antialiased transition-colors duration-300;
     font-family: 'Inter', sans-serif;
   }
   h1, h2, h3, h4, h5, h6 {
@@ -62,9 +91,26 @@
 }
 
 .glass-card {
-  @apply bg-[#18181b]/60 backdrop-blur-md border border-white/10 shadow-lg shadow-black/20;
+  background-color: rgb(var(--glass-bg));
+  backdrop-filter: blur(12px);
+  border: 1px solid rgb(var(--glass-border));
+  @apply shadow-lg shadow-black/5 dark:shadow-black/20;
 }
 
 .brand-glow {
   @apply shadow-lg shadow-violet-500/20;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-muted rounded-full;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  @apply bg-zinc-500;
 }
