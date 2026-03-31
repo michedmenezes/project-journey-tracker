@@ -10,19 +10,11 @@ import { cn } from "@/lib/utils";
 import type { Phase } from "@/lib/phases";
 
 const phaseColorClasses = [
-  "text-phase-1",
-  "text-phase-2",
-  "text-phase-3",
-  "text-phase-4",
-  "text-phase-5",
+  "text-phase-1", "text-phase-2", "text-phase-3", "text-phase-4", "text-phase-5",
 ];
 
 const phaseBgClasses = [
-  "bg-phase-1/10",
-  "bg-phase-2/10",
-  "bg-phase-3/10",
-  "bg-phase-4/10",
-  "bg-phase-5/10",
+  "bg-phase-1/10", "bg-phase-2/10", "bg-phase-3/10", "bg-phase-4/10", "bg-phase-5/10",
 ];
 
 const PHASE_DESCRIPTIONS: Record<number, string> = {
