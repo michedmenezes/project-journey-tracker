@@ -486,11 +486,18 @@ export default function AdminPanel() {
                 className="bg-card rounded-xl shadow-md border border-border p-5"
               >
                 <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 className="font-display text-lg font-bold text-foreground">{group.name}</h3>
-                    <span className="text-xs font-semibold bg-secondary/10 text-secondary px-2 py-0.5 rounded-full">
-                      {group.class}
-                    </span>
+                  <div className="flex-1 min-w-0 mr-2">
+                    <h3 className="font-display text-lg font-bold text-foreground truncate">{group.name}</h3>
+                    <div className="flex flex-wrap items-center gap-2 mt-1">
+                      <span className="text-[10px] font-bold bg-secondary/10 text-secondary px-2 py-0.5 rounded-full uppercase tracking-wider">
+                        {group.class}
+                      </span>
+                      {group.members && group.members.length > 0 && (
+                        <p className="text-[10px] text-muted-foreground italic truncate">
+                          {group.members.join(", ")}
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <Button
                     variant="ghost"
