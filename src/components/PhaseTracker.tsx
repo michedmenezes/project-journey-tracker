@@ -1,7 +1,11 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { PHASES, type Group } from "@/lib/phases";
 import PhaseIcon from "./PhaseIcon";
+import PhaseDetailDialog from "./PhaseDetailDialog";
 import { cn } from "@/lib/utils";
+import type { Phase } from "@/lib/phases";
 
 const phaseColors = [
   "bg-phase-1",
