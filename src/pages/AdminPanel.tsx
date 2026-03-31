@@ -170,10 +170,14 @@ export default function AdminPanel() {
           }
 
           if (groupName) {
+            // Captura integrantes das colunas seguintes, ignorando campos vazios ou "-"
+            const members = parts.slice(1).filter(m => m && m !== "-" && m !== "");
+            
             newGroups.push({
               id: crypto.randomUUID(),
               name: groupName,
               class: className,
+              members: members.length > 0 ? members : undefined,
               completedPhases: phases.map(() => false),
             });
           }

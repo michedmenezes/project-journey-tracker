@@ -35,10 +35,17 @@ export default function PhaseTrackerCondensed({ group, rank }: PhaseTrackerConde
 
       {/* Group Info */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between mb-1.5">
-          <Link to={`/grupo/${group.id}`} className="hover:underline truncate mr-2">
-            <h3 className="font-display text-sm font-bold text-foreground">{group.name}</h3>
-          </Link>
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex-1 min-w-0 mr-2">
+            <Link to={`/grupo/${group.id}`} className="hover:underline truncate block">
+              <h3 className="font-display text-sm font-bold text-foreground inline mr-2">{group.name}</h3>
+              {group.members && group.members.length > 0 && (
+                <span className="text-[9px] text-muted-foreground italic truncate">
+                  ({group.members.join(", ")})
+                </span>
+              )}
+            </Link>
+          </div>
           <span className="text-[10px] font-bold text-muted-foreground whitespace-nowrap">
             {completedCount}/{phases.length} FASES
           </span>

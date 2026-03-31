@@ -78,12 +78,19 @@ export default function GroupPage() {
           </Link>
           <div className="flex items-center gap-3">
             <Rocket className="w-8 h-8" />
-            <h1 className="font-display text-3xl sm:text-4xl font-bold">
-              {group.name}
-            </h1>
+            <div>
+              <h1 className="font-display text-3xl sm:text-4xl font-bold">
+                {group.name}
+              </h1>
+              {group.members && group.members.length > 0 && (
+                <p className="text-primary-foreground/70 text-sm italic">
+                  Integrantes: {group.members.join(", ")}
+                </p>
+              )}
+            </div>
           </div>
-          <p className="text-primary-foreground/80 mt-1">
-            {completed}/{phases.length} fases concluídas
+          <p className="text-primary-foreground/80 mt-2">
+            Turma: {group.class} • {completed}/{phases.length} fases concluídas
           </p>
         </motion.div>
       </header>

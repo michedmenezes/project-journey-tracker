@@ -39,11 +39,18 @@ export default function PhaseTracker({ group }: PhaseTrackerProps) {
 
   return (
     <div className="rounded-xl bg-card p-5 shadow-md border border-border">
-      <div className="flex items-center justify-between mb-4">
-        <Link to={`/grupo/${group.id}`} className="hover:underline">
-          <h3 className="font-display text-xl font-bold text-foreground">{group.name}</h3>
-        </Link>
-        <span className="text-sm font-semibold text-muted-foreground">
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex-1 min-w-0 mr-2">
+          <Link to={`/grupo/${group.id}`} className="hover:underline">
+            <h3 className="font-display text-xl font-bold text-foreground truncate">{group.name}</h3>
+          </Link>
+          {group.members && group.members.length > 0 && (
+            <p className="text-[10px] text-muted-foreground truncate italic">
+              {group.members.join(", ")}
+            </p>
+          )}
+        </div>
+        <span className="text-sm font-semibold text-muted-foreground whitespace-nowrap">
           {completed}/{phases.length} fases
         </span>
       </div>
