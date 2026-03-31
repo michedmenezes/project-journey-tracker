@@ -149,22 +149,30 @@ export default function AdminPanel() {
     const reader = new FileReader();
     reader.onload = (event) => {
       const text = event.target?.result as string;
-      const lines = text.split("\n");
+      const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
+      
+      if (lines.length === 0) return;
+
+      // Pergunta a turma para aplicar a todos os grupos do CSV
+      const className = prompt("Para qual turma deseja importar estes grupos? (Ex: 8º Ano C)");
+      if (!className) return;
+
       const newGroups: Group[] = [];
       
-      // Pula o cabeçalho se houver (opcional, vamos tentar detectar)
       lines.forEach((line, index) => {
         const parts = line.split(",").map(p => p.trim());
-        if (parts.length >= 2) {
-          const [name, className] = parts;
-          // Ignora se for o cabeçalho "nome,turma" ou similar
-          if (index === 0 && (name.toLowerCase().includes("nome") || className.toLowerCase().includes("turma"))) {
+        if (parts.length > 0) {
+          const groupName = parts[0];
+          
+          // Ignora cabeçalho se o primeiro campo for "Grupo" ou "Nome"
+          if (index === 0 && (groupName.toLowerCase() === "grupo" || groupName.toLowerCase() === "nome")) {
             return;
           }
-          if (name && className) {
+
+          if (groupName) {
             newGroups.push({
               id: crypto.randomUUID(),
-              name,
+              name: groupName,
               class: className,
               completedPhases: phases.map(() => false),
             });
@@ -173,20 +181,19 @@ export default function AdminPanel() {
       });
 
       if (newGroups.length > 0) {
-        if (confirm(`Deseja importar ${newGroups.length} grupos?`)) {
+        if (confirm(`Encontramos ${newGroups.length} grupos. Deseja importá-los para a turma "${className}"?`)) {
           persistGroups([...groups, ...newGroups]);
         }
       } else {
-        alert("Nenhum grupo válido encontrado no CSV. Use o formato: Nome, Turma");
+        alert("Nenhum grupo válido encontrado no CSV. Certifique-se de que o nome do grupo esteja na primeira coluna.");
       }
-      // Reseta o input
       e.target.value = "";
     };
     reader.readAsText(file);
   };
 
   const downloadCSVTemplate = () => {
-    const content = "Nome do Grupo, Turma\nEquipe Alpha, 8 Ano A\nEquipe Beta, 8 Ano B";
+    const content = "Grupo,Integrante 1,Integrante 2,Integrante 3,Integrante 4\nGrupo 1,Celina,Daniel,Sofia,Pedro C.\nGrupo 2,Julia,Moema,Luana,-";
     const blob = new Blob([content], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
