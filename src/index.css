@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,53 +6,44 @@
 
 @layer base {
   :root {
-    --background: 210 30% 97%;
-    --foreground: 220 25% 14%;
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 25% 14%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 25% 14%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 160 60% 42%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 263.4 70% 50.4%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 70% 55%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 210 20% 93%;
-    --muted-foreground: 220 10% 46%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
 
-    --accent: 45 95% 58%;
-    --accent-foreground: 30 60% 18%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 210 20% 88%;
-    --input: 210 20% 88%;
-    --ring: 160 60% 42%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 263.4 70% 50.4%;
 
     --radius: 0.75rem;
 
-    --phase-1: 200 75% 52%;
-    --phase-2: 170 65% 45%;
-    --phase-3: 145 60% 42%;
-    --phase-4: 35 90% 55%;
-    --phase-5: 280 60% 55%;
+    --phase-1: 263 70% 50%;
+    --phase-2: 270 70% 50%;
+    --phase-3: 280 70% 50%;
+    --phase-4: 290 70% 50%;
+    --phase-5: 300 70% 50%;
 
-    --gradient-hero: linear-gradient(135deg, hsl(160 60% 42%), hsl(210 70% 55%));
-    --gradient-phase: linear-gradient(90deg, hsl(200 75% 52%), hsl(160 60% 42%), hsl(145 60% 42%), hsl(35 90% 55%), hsl(280 60% 55%));
-
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --gradient-hero: linear-gradient(135deg, #09090b 0%, #18181b 100%);
+    --gradient-phase: linear-gradient(90deg, #8b5cf6, #7c3aed, #6d28d9);
   }
 }
 
@@ -61,10 +52,19 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
-    font-family: 'Nunito', sans-serif;
+    @apply bg-[#09090b] text-zinc-50 antialiased;
+    font-family: 'Inter', sans-serif;
   }
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Fredoka', sans-serif;
+    font-family: 'Inter', sans-serif;
+    @apply font-bold;
   }
+}
+
+.glass-card {
+  @apply bg-[#18181b]/60 backdrop-blur-md border border-white/10 shadow-lg shadow-black/20;
+}
+
+.brand-glow {
+  @apply shadow-lg shadow-violet-500/20;
 }

@@ -1,236 +1,171 @@
-import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, CheckCircle2, Clock } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Circle, Users, Target, ClipboardList, Trophy, XCircle } from "lucide-react";
 import PhaseIcon from "@/components/PhaseIcon";
 import { loadPhases, loadGroups, type Phase, type Group } from "@/lib/phases";
 import { cn } from "@/lib/utils";
-
-const phaseColors = [
-  "bg-phase-1", "bg-phase-2", "bg-phase-3", "bg-phase-4", "bg-phase-5",
-];
-const phaseBgLight = [
-  "bg-phase-1/10", "bg-phase-2/10", "bg-phase-3/10", "bg-phase-4/10", "bg-phase-5/10",
-];
-const phaseTextColors = [
-  "text-phase-1", "text-phase-2", "text-phase-3", "text-phase-4", "text-phase-5",
-];
-const phaseBorders = [
-  "border-phase-1", "border-phase-2", "border-phase-3", "border-phase-4", "border-phase-5",
-];
+import { useEffect, useState } from "react";
 
 export default function PhasePage() {
-  const { phaseId } = useParams<{ phaseId: string }>();
+  const { phaseId } = useParams();
   const [phase, setPhase] = useState<Phase | null>(null);
-  const [phaseIndex, setPhaseIndex] = useState(0);
   const [groups, setGroups] = useState<Group[]>([]);
+  const [allPhases, setAllPhases] = useState<Phase[]>([]);
 
   useEffect(() => {
-    const update = () => {
-      const phases = loadPhases();
-      const idx = phases.findIndex((p) => String(p.id) === phaseId);
-      if (idx !== -1) {
-        setPhase(phases[idx]);
-        setPhaseIndex(idx);
-      } else {
-        setPhase(null);
-      }
-      setGroups(loadGroups());
-    };
-    update();
-    const interval = setInterval(update, 2000);
-    return () => clearInterval(interval);
+    const pList = loadPhases();
+    setAllPhases(pList);
+    const found = pList.find((p) => String(p.id) === phaseId);
+    setPhase(found || null);
+    setGroups(loadGroups());
   }, [phaseId]);
 
   if (!phase) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-muted-foreground text-lg mb-4">Fase não encontrada.</p>
-          <Link to="/" className="text-primary font-semibold hover:underline">
-            ← Voltar ao Dashboard
-          </Link>
+      <div className="min-h-screen bg-[#09090b] flex flex-col items-center justify-center p-6 text-center">
+        <div className="bg-red-500/10 p-4 rounded-2xl border border-red-500/20 mb-6">
+          <XCircle className="w-12 h-12 text-red-500" />
         </div>
+        <h2 className="text-2xl font-black text-white mb-2">Etapa não encontrada</h2>
+        <Link to="/" className="text-brand-500 font-bold hover:underline uppercase tracking-widest text-xs">
+          Voltar ao Dashboard
+        </Link>
       </div>
     );
   }
 
-  const colorIdx = phaseIndex % phaseColors.length;
-  const completedGroups = groups.filter((g) => g.completedPhases[phaseIndex] === true);
-  const pct = groups.length > 0 ? (completedGroups.length / groups.length) * 100 : 0;
+  const phaseIndex = allPhases.findIndex((p) => p.id === phase.id);
+  const completedGroups = groups.filter((g) => g.completedPhases[phaseIndex]);
+  const progressPercent = groups.length > 0 ? (completedGroups.length / groups.length) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
+    <div className="min-h-screen bg-[#09090b] text-zinc-50 pb-20">
       <header
-        className="py-8 px-4 text-primary-foreground"
+        className="py-12 px-6 border-b border-white/5 relative overflow-hidden"
         style={{ background: "var(--gradient-hero)" }}
       >
-        <motion.div
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="max-w-3xl mx-auto"
-        >
+        <div className="absolute inset-0 bg-brand-500/5 blur-[100px] rounded-full -top-24 -right-24" />
+        <div className="max-w-4xl mx-auto relative z-10">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-primary-foreground/80 hover:text-primary-foreground text-sm mb-3 transition-colors"
+            className="inline-flex items-center gap-2 text-zinc-400 hover:text-white text-xs font-black uppercase tracking-widest mb-8 transition-colors group"
           >
-            <ArrowLeft className="w-4 h-4" /> Voltar ao Dashboard
+            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" /> Voltar ao Dashboard
           </Link>
-          <div className="flex items-center gap-4">
-            <div
-              className={cn(
-                "w-14 h-14 rounded-full flex items-center justify-center shrink-0",
-                "bg-white/20"
-              )}
-            >
-              <PhaseIcon icon={phase.icon} className="w-7 h-7 text-white" />
+          
+          <div className="flex flex-col md:flex-row md:items-center gap-6">
+            <div className="bg-brand-500/10 p-4 rounded-2xl border border-brand-500/20 brand-glow shrink-0 w-20 h-20 flex items-center justify-center">
+              <PhaseIcon icon={phase.icon} className="w-10 h-10 text-brand-500" />
             </div>
             <div>
-              <p className="text-primary-foreground/70 text-sm font-medium uppercase tracking-wide">
-                Fase {phaseIndex + 1} — {phase.stage}
-              </p>
-              <h1 className="font-display text-3xl sm:text-4xl font-bold">
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-[10px] font-black bg-brand-500/10 text-brand-500 px-3 py-1 rounded-full uppercase tracking-[0.2em] border border-brand-500/10">
+                  Etapa {phaseIndex + 1}
+                </span>
+                <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">
+                  {phase.stage}
+                </span>
+              </div>
+              <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight">
                 {phase.title}
               </h1>
             </div>
           </div>
-        </motion.div>
+        </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-        {/* Delivery card */}
-        <motion.div
-          initial={{ y: 15, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.05 }}
-          className={cn(
-            "rounded-xl border p-4 flex items-start gap-3",
-            phaseBgLight[colorIdx],
-            phaseBorders[colorIdx]
-          )}
-        >
-          <span className="text-xl mt-0.5">📋</span>
-          <div>
-            <p className={cn("text-xs font-semibold uppercase tracking-wide mb-0.5", phaseTextColors[colorIdx])}>
-              Entrega Requerida
-            </p>
-            <p className="text-sm text-foreground font-medium">{phase.delivery}</p>
-          </div>
-        </motion.div>
+      <main className="max-w-4xl mx-auto px-6 py-12 space-y-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="md:col-span-2 space-y-12">
+            <section className="space-y-4">
+              <div className="flex items-center gap-3 mb-6">
+                <Target className="w-5 h-5 text-brand-500" />
+                <h2 className="text-xl font-black text-white uppercase tracking-widest">O que é esta etapa?</h2>
+              </div>
+              <div className="glass-card rounded-2xl p-8 border-none shadow-xl leading-relaxed text-zinc-300 font-medium">
+                {phase.description || "Nenhuma descrição disponível para esta etapa."}
+              </div>
+            </section>
 
-        {/* Description */}
-        {phase.description && (
-          <motion.div
-            initial={{ y: 15, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.1 }}
-            className="rounded-xl bg-card shadow-md border border-border p-5"
-          >
-            <h2 className="font-display text-lg font-bold text-foreground mb-3">
-              Descrição
-            </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              {phase.description}
-            </p>
-          </motion.div>
-        )}
-
-        {/* Missions */}
-        {phase.missions && phase.missions.length > 0 && (
-          <motion.div
-            initial={{ y: 15, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.15 }}
-            className="rounded-xl bg-card shadow-md border border-border p-5"
-          >
-            <h2 className="font-display text-lg font-bold text-foreground mb-4">
-              Missões
-            </h2>
-            <ol className="space-y-3">
-              {phase.missions.map((mission, mi) => (
-                <li key={mi} className="flex items-start gap-3">
-                  <span
-                    className={cn(
-                      "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 text-primary-foreground",
-                      phaseColors[colorIdx]
-                    )}
-                  >
-                    {mi + 1}
-                  </span>
-                  <p className="text-sm text-foreground leading-relaxed pt-0.5">{mission}</p>
-                </li>
-              ))}
-            </ol>
-          </motion.div>
-        )}
-
-        {/* Progress among groups */}
-        {groups.length > 0 && (
-          <motion.div
-            initial={{ y: 15, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="rounded-xl bg-card shadow-md border border-border p-5"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="font-display text-lg font-bold text-foreground">
-                Progresso das Equipes
-              </h2>
-              <span className="text-sm font-semibold text-muted-foreground">
-                {completedGroups.length}/{groups.length} concluíram
-              </span>
-            </div>
-
-            <div className="relative h-3 rounded-full bg-muted overflow-hidden mb-5">
-              <motion.div
-                className="absolute inset-y-0 left-0 rounded-full"
-                style={{ background: "var(--gradient-phase)" }}
-                initial={{ width: 0 }}
-                animate={{ width: `${pct}%` }}
-                transition={{ duration: 0.6, ease: "easeOut" }}
-              />
-            </div>
-
-            <ul className="space-y-2">
-              {groups.map((group) => {
-                const done = group.completedPhases[phaseIndex] ?? false;
-                return (
-                  <li key={group.id}>
-                    <Link
-                      to={`/grupo/${group.id}`}
-                      className={cn(
-                        "flex items-center gap-3 p-3 rounded-lg border transition-all hover:shadow-sm hover:scale-[1.01]",
-                        done
-                          ? "bg-primary/10 border-primary/30"
-                          : "bg-muted/50 border-transparent hover:bg-muted"
-                      )}
+            <section className="space-y-6">
+              <div className="flex items-center gap-3 mb-6">
+                <ClipboardList className="w-5 h-5 text-brand-500" />
+                <h2 className="text-xl font-black text-white uppercase tracking-widest">Missões da Equipe</h2>
+              </div>
+              <div className="space-y-4">
+                {phase.missions && phase.missions.length > 0 ? (
+                  phase.missions.map((mission, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                      className="glass-card rounded-xl p-5 border-none flex items-start gap-4 hover:bg-surface/80 transition-all"
                     >
-                      {done ? (
-                        <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
-                      ) : (
-                        <Clock className="w-5 h-5 text-muted-foreground shrink-0" />
-                      )}
-                      <span className="text-sm font-semibold text-foreground flex-1">
-                        {group.name}
-                      </span>
-                      <span
+                      <div className="bg-brand-500/10 text-brand-500 w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs shrink-0 border border-brand-500/10">
+                        {i + 1}
+                      </div>
+                      <p className="text-zinc-200 font-bold leading-snug pt-1">{mission}</p>
+                    </motion.div>
+                  ))
+                ) : (
+                  <p className="text-zinc-500 italic font-medium">Nenhuma missão cadastrada.</p>
+                )}
+              </div>
+            </section>
+          </div>
+
+          <aside className="space-y-8">
+            <section className="glass-card rounded-2xl p-6 border-none shadow-xl bg-brand-500/5 border border-brand-500/10">
+              <h3 className="text-xs font-black text-brand-500 uppercase tracking-[0.2em] mb-4">Entrega Requerida</h3>
+              <div className="flex items-start gap-3">
+                <Trophy className="w-5 h-5 text-brand-500 shrink-0 mt-0.5" />
+                <p className="text-sm font-black text-white leading-relaxed">
+                  {phase.delivery}
+                </p>
+              </div>
+            </section>
+
+            <section className="glass-card rounded-2xl p-6 border-none shadow-xl">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Status das Equipes</h3>
+                <span className="text-xs font-black text-brand-500">{Math.round(progressPercent)}%</span>
+              </div>
+              <div className="h-2 rounded-full bg-zinc-900 overflow-hidden mb-6">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progressPercent}%` }}
+                  className="h-full bg-brand-500 brand-glow"
+                />
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-4 border-b border-white/5 pb-2">
+                  <Users className="w-3.5 h-3.5" /> Listagem de Grupos
+                </div>
+                <div className="max-h-[300px] overflow-y-auto pr-2 space-y-2 custom-scrollbar">
+                  {groups.map((group) => {
+                    const isDone = group.completedPhases[phaseIndex];
+                    return (
+                      <Link
+                        key={group.id}
+                        to={`/grupo/${group.id}`}
                         className={cn(
-                          "text-xs font-semibold px-2 py-0.5 rounded-full",
-                          done
-                            ? "bg-primary/20 text-primary"
-                            : "bg-muted text-muted-foreground"
+                          "flex items-center justify-between p-3 rounded-xl border transition-all text-[10px] font-black uppercase tracking-widest",
+                          isDone 
+                            ? "bg-brand-500/10 border-brand-500/20 text-brand-500" 
+                            : "bg-zinc-900/50 border-white/5 text-zinc-500 hover:border-white/10"
                         )}
                       >
-                        {done ? "Concluída" : "Pendente"}
-                      </span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </motion.div>
-        )}
+                        <span className="truncate mr-2">{group.name}</span>
+                        {isDone ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            </section>
+          </aside>
+        </div>
       </main>
     </div>
   );

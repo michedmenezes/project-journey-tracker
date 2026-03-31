@@ -1,35 +1,25 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Rocket } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Circle, Rocket, Target, Trophy, Info } from "lucide-react";
 import PhaseIcon from "@/components/PhaseIcon";
 import PhaseDetailDialog from "@/components/PhaseDetailDialog";
-import { loadPhases, loadGroups, type Group, type Phase } from "@/lib/phases";
+import { loadGroups, loadPhases, type Group, type Phase } from "@/lib/phases";
 import { cn } from "@/lib/utils";
 
-const phaseColors = [
-  "bg-phase-1", "bg-phase-2", "bg-phase-3", "bg-phase-4", "bg-phase-5",
-];
-const phaseBorders = [
-  "border-phase-1", "border-phase-2", "border-phase-3", "border-phase-4", "border-phase-5",
-];
-const phaseTextColors = [
-  "text-phase-1", "text-phase-2", "text-phase-3", "text-phase-4", "text-phase-5",
-];
-
 export default function GroupPage() {
-  const { groupId } = useParams<{ groupId: string }>();
+  const { groupId } = useParams();
   const [group, setGroup] = useState<Group | null>(null);
-  const [phases, setPhases] = useState<Phase[]>(loadPhases());
-  const [selectedPhase, setSelectedPhase] = useState<Phase | null>(null);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [phases, setPhases] = useState<Phase[]>([]);
+
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedPhase, setSelectedPhase] = useState<{ phase: Phase, index: number } | null>(null);
 
   useEffect(() => {
     const update = () => {
       const groups = loadGroups();
-      const found = groups.find((g) => g.id === groupId) ?? null;
-      setGroup(found);
+      const found = groups.find((g) => g.id === groupId);
+      setGroup(found || null);
       setPhases(loadPhases());
     };
     update();
@@ -37,148 +27,157 @@ export default function GroupPage() {
     return () => clearInterval(interval);
   }, [groupId]);
 
+  const openPhaseDetails = (phase: Phase, index: number) => {
+    setSelectedPhase({ phase, index });
+    setDialogOpen(true);
+  };
+
   if (!group) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-muted-foreground text-lg mb-4">Grupo não encontrado.</p>
-          <Link to="/" className="text-primary font-semibold hover:underline">
-            ← Voltar ao Dashboard
-          </Link>
+      <div className="min-h-screen bg-[#09090b] flex flex-col items-center justify-center p-6 text-center">
+        <div className="bg-zinc-900 p-4 rounded-2xl border border-white/5 mb-6">
+          <Rocket className="w-12 h-12 text-zinc-700" />
         </div>
+        <h2 className="text-2xl font-black text-white mb-2">Equipe não encontrada</h2>
+        <Link to="/" className="text-brand-500 font-bold hover:underline uppercase tracking-widest text-xs">
+          Voltar ao Dashboard
+        </Link>
       </div>
     );
   }
 
   const completed = group.completedPhases.filter(Boolean).length;
-  const pct = phases.length > 0 ? (completed / phases.length) * 100 : 0;
-
-  const openPhaseDetail = (phase: Phase, index: number) => {
-    setSelectedPhase(phase);
-    setSelectedIndex(index);
-    setDialogOpen(true);
-  };
+  const progressPercent = phases.length > 0 ? (completed / phases.length) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#09090b] text-zinc-50 pb-20">
       <header
-        className="py-8 px-4 text-primary-foreground"
+        className="py-12 px-6 border-b border-white/5 relative overflow-hidden"
         style={{ background: "var(--gradient-hero)" }}
       >
+        <div className="absolute inset-0 bg-brand-500/5 blur-[100px] rounded-full -top-24 -left-24" />
         <motion.div
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="max-w-3xl mx-auto"
+          className="max-w-4xl mx-auto relative z-10"
         >
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-primary-foreground/80 hover:text-primary-foreground text-sm mb-3 transition-colors"
+            className="inline-flex items-center gap-2 text-zinc-400 hover:text-white text-xs font-black uppercase tracking-widest mb-8 transition-colors group"
           >
-            <ArrowLeft className="w-4 h-4" /> Voltar ao Dashboard
+            <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" /> Voltar ao Dashboard
           </Link>
-          <div className="flex items-center gap-3">
-            <Rocket className="w-8 h-8" />
+          
+          <div className="flex flex-col md:flex-row md:items-center gap-6">
+            <div className="bg-brand-500/10 p-4 rounded-2xl border border-brand-500/20 brand-glow shrink-0 w-20 h-20 flex items-center justify-center">
+              <Rocket className="w-10 h-10 text-brand-500" />
+            </div>
             <div>
-              <h1 className="font-display text-3xl sm:text-4xl font-bold">
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-[10px] font-black bg-brand-500/10 text-brand-500 px-3 py-1 rounded-full uppercase tracking-[0.2em] border border-brand-500/10">
+                  {group.class}
+                </span>
+                <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">
+                  {completed}/{phases.length} Etapas Concluídas
+                </span>
+              </div>
+              <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-2">
                 {group.name}
               </h1>
               {group.members && group.members.length > 0 && (
-                <p className="text-primary-foreground/70 text-sm italic">
+                <p className="text-zinc-400 text-sm italic font-medium">
                   Integrantes: {group.members.join(", ")}
                 </p>
               )}
             </div>
           </div>
-          <p className="text-primary-foreground/80 mt-2">
-            Turma: {group.class} • {completed}/{phases.length} fases concluídas
-          </p>
         </motion.div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-        <div className="rounded-xl bg-card p-5 shadow-md border border-border">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-semibold text-foreground">Progresso Geral</span>
-            <span className="text-sm font-bold text-primary">{Math.round(pct)}%</span>
+      <main className="max-w-4xl mx-auto px-6 py-12 space-y-12">
+        <section className="glass-card rounded-3xl p-8 border-none shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-8 opacity-5">
+            <Trophy className="w-32 h-32 text-brand-500" />
           </div>
-          <div className="relative h-4 rounded-full bg-muted overflow-hidden">
+          
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-black text-white uppercase tracking-widest flex items-center gap-3">
+              <Target className="w-5 h-5 text-brand-500" /> Progresso da Jornada
+            </h2>
+            <span className="text-2xl font-black text-brand-500">{Math.round(progressPercent)}%</span>
+          </div>
+          
+          <div className="h-4 rounded-full bg-zinc-900 overflow-hidden mb-12 border border-white/5">
             <motion.div
-              className="absolute inset-y-0 left-0 rounded-full"
-              style={{ background: "var(--gradient-phase)" }}
               initial={{ width: 0 }}
-              animate={{ width: `${pct}%` }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
+              animate={{ width: `${progressPercent}%` }}
+              transition={{ duration: 1, ease: "easeOut" }}
+              className="h-full bg-brand-500 brand-glow"
             />
           </div>
-        </div>
 
-        {phases.map((phase, i) => {
-          const done = group.completedPhases[i] ?? false;
-          return (
-            <motion.div
-              key={phase.id}
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: i * 0.08 }}
-              className={cn(
-                "rounded-xl bg-card shadow-md border p-5 transition-all hover:shadow-lg",
-                done ? "border-primary/30" : "border-border"
-              )}
-            >
-              <div className="flex items-start gap-4">
-                <button
-                  onClick={() => openPhaseDetail(phase, i)}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {phases.map((phase, i) => {
+              const done = group.completedPhases[i];
+              return (
+                <motion.div
+                  key={phase.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
                   className={cn(
-                    "w-14 h-14 rounded-full flex items-center justify-center border-2 shrink-0 cursor-pointer hover:scale-105 transition-transform",
-                    done
-                      ? `${phaseColors[i % phaseColors.length]} border-transparent text-primary-foreground`
-                      : `bg-muted ${phaseBorders[i % phaseBorders.length]} text-muted-foreground`
+                    "group relative p-5 rounded-2xl border transition-all flex items-center gap-4",
+                    done 
+                      ? "bg-brand-500/10 border-brand-500/20" 
+                      : "bg-zinc-900/50 border-white/5 grayscale opacity-70"
                   )}
                 >
-                  <PhaseIcon icon={phase.icon} className="w-7 h-7" />
-                </button>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-display text-lg font-bold text-foreground">
-                      Fase {i + 1}: {phase.title}
+                  <div className={cn(
+                    "w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border transition-all",
+                    done ? "bg-brand-500 border-brand-500 text-white brand-glow" : "bg-zinc-800 border-white/5 text-zinc-600"
+                  )}>
+                    <PhaseIcon icon={phase.icon} className="w-6 h-6" />
+                  </div>
+                  
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-0.5">Fase {i + 1}</p>
+                    <h3 className={cn("text-sm font-black uppercase tracking-tight truncate", done ? "text-white" : "text-zinc-600")}>
+                      {phase.title}
                     </h3>
-                    {done && (
-                      <span className="text-xs font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-                        Concluída
-                      </span>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Link
+                        to={`/fase/${phase.id}`}
+                        className="text-[9px] font-black uppercase tracking-widest text-brand-500 hover:underline flex items-center gap-1"
+                      >
+                        <Info className="w-3 h-3" /> Ver Detalhes
+                      </Link>
+                      <button 
+                        onClick={() => openPhaseDetails(phase, i)}
+                        className="text-[9px] font-black uppercase tracking-widest text-zinc-500 hover:text-zinc-300"
+                      >
+                        Resumo
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="shrink-0">
+                    {done ? (
+                      <CheckCircle2 className="w-6 h-6 text-brand-500" />
+                    ) : (
+                      <Circle className="w-6 h-6 text-zinc-800" />
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground mb-1">
-                    Etapa: {phase.stage}
-                  </p>
-                  <p className="text-xs text-muted-foreground mb-2">
-                    📋 {phase.delivery}
-                  </p>
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <button
-                      onClick={() => openPhaseDetail(phase, i)}
-                      className={cn("text-xs font-semibold", phaseTextColors[i % phaseTextColors.length])}
-                    >
-                      Clique para detalhes →
-                    </button>
-                    <Link
-                      to={`/fase/${phase.id}`}
-                      className="text-xs font-semibold text-primary hover:underline"
-                    >
-                      Ver descrição e missões →
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          );
-        })}
+                </motion.div>
+              );
+            })}
+          </div>
+        </section>
       </main>
 
       <PhaseDetailDialog
-        phase={selectedPhase}
-        phaseIndex={selectedIndex}
-        completed={selectedPhase ? (group.completedPhases[selectedIndex] ?? false) : false}
+        phase={selectedPhase?.phase || null}
+        phaseIndex={selectedPhase?.index ?? 0}
+        completed={selectedPhase ? (group.completedPhases[selectedPhase.index] ?? false) : false}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
       />
