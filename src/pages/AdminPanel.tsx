@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Plus, Trash2, ArrowLeft, Lock, ShieldCheck, Pencil, Check, X, Filter, LogOut } from "lucide-react";
+import { Plus, Trash2, ArrowLeft, Lock, ShieldCheck, Pencil, Check, X, Filter, LogOut, FileUp, Download } from "lucide-react";
 import PhaseIcon from "@/components/PhaseIcon";
 import { loadPhases, savePhases, loadGroups, saveGroups, AVAILABLE_ICONS, type Phase, type Group } from "@/lib/phases";
 import { Button } from "@/components/ui/button";
@@ -140,6 +140,59 @@ export default function AdminPanel() {
     persistGroups([...groups, g]);
     setNewGroupName("");
     setNewGroupClass("");
+  };
+
+  const handleCSVImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      const lines = text.split("\n");
+      const newGroups: Group[] = [];
+      
+      // Pula o cabeçalho se houver (opcional, vamos tentar detectar)
+      lines.forEach((line, index) => {
+        const parts = line.split(",").map(p => p.trim());
+        if (parts.length >= 2) {
+          const [name, className] = parts;
+          // Ignora se for o cabeçalho "nome,turma" ou similar
+          if (index === 0 && (name.toLowerCase().includes("nome") || className.toLowerCase().includes("turma"))) {
+            return;
+          }
+          if (name && className) {
+            newGroups.push({
+              id: crypto.randomUUID(),
+              name,
+              class: className,
+              completedPhases: phases.map(() => false),
+            });
+          }
+        }
+      });
+
+      if (newGroups.length > 0) {
+        if (confirm(`Deseja importar ${newGroups.length} grupos?`)) {
+          persistGroups([...groups, ...newGroups]);
+        }
+      } else {
+        alert("Nenhum grupo válido encontrado no CSV. Use o formato: Nome, Turma");
+      }
+      // Reseta o input
+      e.target.value = "";
+    };
+    reader.readAsText(file);
+  };
+
+  const downloadCSVTemplate = () => {
+    const content = "Nome do Grupo, Turma\nEquipe Alpha, 8 Ano A\nEquipe Beta, 8 Ano B";
+    const blob = new Blob([content], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "modelo_grupos.csv";
+    a.click();
   };
 
   const removeGroup = (id: string) => {
@@ -362,25 +415,47 @@ export default function AdminPanel() {
             </div>
           </div>
 
-          {/* Add group */}
+          {/* Add group & CSV Import */}
           <div className="bg-card rounded-xl shadow-md border border-border p-5 space-y-4">
-            <p className="text-sm font-semibold text-foreground">Adicionar Novo Grupo</p>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Input
-                placeholder="Nome da equipe (ex: Alpha)"
-                value={newGroupName}
-                onChange={(e) => setNewGroupName(e.target.value)}
-                className="flex-1"
-              />
-              <Input
-                placeholder="Turma (ex: 8º Ano A)"
-                value={newGroupClass}
-                onChange={(e) => setNewGroupClass(e.target.value)}
-                className="w-full sm:w-[200px]"
-              />
-              <Button onClick={addGroup} className="gap-2">
-                <Plus className="w-4 h-4" /> Adicionar
-              </Button>
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold text-foreground">Gerenciar Equipes</p>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={downloadCSVTemplate} className="text-xs gap-1.5 h-8">
+                  <Download className="w-3.5 h-3.5" /> Modelo CSV
+                </Button>
+                <div className="relative">
+                  <input
+                    type="file"
+                    accept=".csv"
+                    onChange={handleCSVImport}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  <Button variant="outline" size="sm" className="text-xs gap-1.5 h-8 bg-primary/5 border-primary/20 text-primary hover:bg-primary/10">
+                    <FileUp className="w-3.5 h-3.5" /> Importar CSV
+                  </Button>
+                </div>
+              </div>
+            </div>
+            
+            <div className="pt-2 border-t border-border/50">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Adicionar Individualmente</p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Input
+                  placeholder="Nome da equipe (ex: Alpha)"
+                  value={newGroupName}
+                  onChange={(e) => setNewGroupName(e.target.value)}
+                  className="flex-1 h-9 text-sm"
+                />
+                <Input
+                  placeholder="Turma (ex: 8º Ano A)"
+                  value={newGroupClass}
+                  onChange={(e) => setNewGroupClass(e.target.value)}
+                  className="w-full sm:w-[200px] h-9 text-sm"
+                />
+                <Button onClick={addGroup} size="sm" className="gap-2 h-9">
+                  <Plus className="w-4 h-4" /> Adicionar
+                </Button>
+              </div>
             </div>
           </div>
 
