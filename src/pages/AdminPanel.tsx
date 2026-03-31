@@ -1,7 +1,7 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Plus, Trash2, ArrowLeft, Lock, ShieldCheck, Pencil, Check, X } from "lucide-react";
+import { Plus, Trash2, ArrowLeft, Lock, ShieldCheck, Pencil, Check, X, Filter, LogOut } from "lucide-react";
 import PhaseIcon from "@/components/PhaseIcon";
 import { loadPhases, savePhases, loadGroups, saveGroups, AVAILABLE_ICONS, type Phase, type Group } from "@/lib/phases";
 import { Button } from "@/components/ui/button";
@@ -13,8 +13,16 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const ADMIN_PASSWORD = "prof2025";
+const AUTH_STORAGE_KEY = "autoral-admin-auth";
 
 type PhaseFormState = {
   title: string;
@@ -61,16 +69,20 @@ function formToPhase(form: PhaseFormState, base: Partial<Phase> = {}): Omit<Phas
 }
 
 export default function AdminPanel() {
-  const [authenticated, setAuthenticated] = useState(false);
+  const [authenticated, setAuthenticated] = useState(() => {
+    return localStorage.getItem(AUTH_STORAGE_KEY) === "true";
+  });
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
   const [groups, setGroups] = useState<Group[]>([]);
   const [phases, setPhases] = useState<Phase[]>([]);
   const [newGroupName, setNewGroupName] = useState("");
+  const [newGroupClass, setNewGroupClass] = useState("");
   const [editingPhaseId, setEditingPhaseId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<PhaseFormState>(emptyForm());
   const [newPhase, setNewPhase] = useState<PhaseFormState>(emptyForm());
   const [showNewPhase, setShowNewPhase] = useState(false);
+  const [selectedClassFilter, setSelectedClassFilter] = useState<string>("all");
 
   useEffect(() => {
     if (authenticated) {
@@ -78,6 +90,16 @@ export default function AdminPanel() {
       setPhases(loadPhases());
     }
   }, [authenticated]);
+
+  const classes = useMemo(() => {
+    const uniqueClasses = Array.from(new Set(groups.map((g) => g.class))).filter(Boolean);
+    return uniqueClasses.sort();
+  }, [groups]);
+
+  const filteredGroups = useMemo(() => {
+    if (selectedClassFilter === "all") return groups;
+    return groups.filter((g) => g.class === selectedClassFilter);
+  }, [groups, selectedClassFilter]);
 
   const persistGroups = useCallback((updated: Group[]) => {
     setGroups(updated);
@@ -92,26 +114,38 @@ export default function AdminPanel() {
   const handleLogin = () => {
     if (password === ADMIN_PASSWORD) {
       setAuthenticated(true);
+      localStorage.setItem(AUTH_STORAGE_KEY, "true");
       setError(false);
     } else {
       setError(true);
     }
   };
 
+  const handleLogout = () => {
+    setAuthenticated(false);
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    setPassword("");
+  };
+
   const addGroup = () => {
     const name = newGroupName.trim();
-    if (!name) return;
+    const className = newGroupClass.trim();
+    if (!name || !className) return;
     const g: Group = {
       id: crypto.randomUUID(),
       name,
+      class: className,
       completedPhases: phases.map(() => false),
     };
     persistGroups([...groups, g]);
     setNewGroupName("");
+    setNewGroupClass("");
   };
 
   const removeGroup = (id: string) => {
-    persistGroups(groups.filter((g) => g.id !== id));
+    if (confirm("Tem certeza que deseja remover este grupo?")) {
+      persistGroups(groups.filter((g) => g.id !== id));
+    }
   };
 
   const togglePhase = (groupId: string, phaseIndex: number) => {
@@ -162,12 +196,14 @@ export default function AdminPanel() {
   };
 
   const removePhase = (phaseIndex: number) => {
-    const updated = phases.filter((_, i) => i !== phaseIndex);
-    persistPhases(updated);
-    persistGroups(groups.map((g) => ({
-      ...g,
-      completedPhases: g.completedPhases.filter((_, i) => i !== phaseIndex),
-    })));
+    if (confirm("Tem certeza que deseja remover esta etapa? Isso afetará o progresso de todos os grupos.")) {
+      const updated = phases.filter((_, i) => i !== phaseIndex);
+      persistPhases(updated);
+      persistGroups(groups.map((g) => ({
+        ...g,
+        completedPhases: g.completedPhases.filter((_, i) => i !== phaseIndex),
+      })));
+    }
   };
 
   if (!authenticated) {
@@ -207,16 +243,21 @@ export default function AdminPanel() {
         className="py-6 px-4 text-primary-foreground"
         style={{ background: "var(--gradient-hero)" }}
       >
-        <div className="max-w-3xl mx-auto flex items-center gap-3">
-          <Link to="/" className="hover:opacity-80 transition-opacity">
-            <ArrowLeft className="w-6 h-6" />
-          </Link>
-          <ShieldCheck className="w-7 h-7" />
-          <h1 className="font-display text-2xl font-bold">Painel do Professor</h1>
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link to="/" className="hover:opacity-80 transition-opacity">
+              <ArrowLeft className="w-6 h-6" />
+            </Link>
+            <ShieldCheck className="w-7 h-7" />
+            <h1 className="font-display text-2xl font-bold">Painel do Professor</h1>
+          </div>
+          <Button variant="ghost" size="sm" onClick={handleLogout} className="text-primary-foreground hover:bg-white/10 gap-2">
+            <LogOut className="w-4 h-4" /> Sair
+          </Button>
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 py-8 space-y-8">
+      <main className="max-w-4xl mx-auto px-4 py-8 space-y-8">
         {/* Phase Management */}
         <Accordion type="single" collapsible>
           <AccordionItem value="phases" className="bg-card rounded-xl shadow-md border border-border px-5">
@@ -245,11 +286,6 @@ export default function AdminPanel() {
                           <p className="text-xs text-muted-foreground truncate">
                             {phase.stage} — {phase.delivery}
                           </p>
-                          {phase.missions && phase.missions.length > 0 && (
-                            <p className="text-xs text-muted-foreground mt-0.5">
-                              {phase.missions.length} missão(ões)
-                            </p>
-                          )}
                         </div>
                         <Link
                           to={`/fase/${phase.id}`}
@@ -306,78 +342,111 @@ export default function AdminPanel() {
           </AccordionItem>
         </Accordion>
 
-        {/* Add group */}
-        <div className="flex gap-3">
-          <Input
-            placeholder="Nome do novo grupo..."
-            value={newGroupName}
-            onChange={(e) => setNewGroupName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && addGroup()}
-            className="flex-1"
-          />
-          <Button onClick={addGroup} className="gap-2">
-            <Plus className="w-4 h-4" /> Adicionar
-          </Button>
-        </div>
+        {/* Group Management Section */}
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <h2 className="font-display text-xl font-bold text-foreground">Equipes por Turma</h2>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Filter className="w-4 h-4 text-muted-foreground" />
+              <Select value={selectedClassFilter} onValueChange={setSelectedClassFilter}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectValue placeholder="Filtrar por turma" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas as turmas</SelectItem>
+                  {classes.map((c) => (
+                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
-        {groups.length === 0 && (
-          <p className="text-center text-muted-foreground py-10">
-            Nenhum grupo cadastrado. Adicione um grupo acima.
-          </p>
-        )}
-
-        {groups.map((group, gi) => (
-          <motion.div
-            key={group.id}
-            initial={{ y: 15, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: gi * 0.05 }}
-            className="bg-card rounded-xl shadow-md border border-border p-5"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-display text-lg font-bold text-foreground">{group.name}</h3>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => removeGroup(group.id)}
-                className="text-destructive hover:text-destructive hover:bg-destructive/10"
-              >
-                <Trash2 className="w-5 h-5" />
+          {/* Add group */}
+          <div className="bg-card rounded-xl shadow-md border border-border p-5 space-y-4">
+            <p className="text-sm font-semibold text-foreground">Adicionar Novo Grupo</p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Input
+                placeholder="Nome da equipe (ex: Alpha)"
+                value={newGroupName}
+                onChange={(e) => setNewGroupName(e.target.value)}
+                className="flex-1"
+              />
+              <Input
+                placeholder="Turma (ex: 8º Ano A)"
+                value={newGroupClass}
+                onChange={(e) => setNewGroupClass(e.target.value)}
+                className="w-full sm:w-[200px]"
+              />
+              <Button onClick={addGroup} className="gap-2">
+                <Plus className="w-4 h-4" /> Adicionar
               </Button>
             </div>
+          </div>
 
-            <div className="space-y-3">
-              {phases.map((phase, pi) => {
-                const done = group.completedPhases[pi] ?? false;
-                return (
-                  <label
-                    key={phase.id}
-                    className={cn(
-                      "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors border",
-                      done
-                        ? "bg-primary/10 border-primary/30"
-                        : "bg-muted/50 border-transparent hover:bg-muted"
-                    )}
+          {filteredGroups.length === 0 && (
+            <p className="text-center text-muted-foreground py-10 bg-muted/20 rounded-xl border border-dashed">
+              Nenhum grupo encontrado para esta seleção.
+            </p>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {filteredGroups.map((group, gi) => (
+              <motion.div
+                key={group.id}
+                initial={{ y: 15, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: gi * 0.05 }}
+                className="bg-card rounded-xl shadow-md border border-border p-5"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h3 className="font-display text-lg font-bold text-foreground">{group.name}</h3>
+                    <span className="text-xs font-semibold bg-secondary/10 text-secondary px-2 py-0.5 rounded-full">
+                      {group.class}
+                    </span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeGroup(group.id)}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10 -mt-1 -mr-1"
                   >
-                    <input
-                      type="checkbox"
-                      checked={done}
-                      onChange={() => togglePhase(group.id, pi)}
-                      className="w-5 h-5 accent-primary rounded"
-                    />
-                    <PhaseIcon icon={phase.icon} className="w-5 h-5 text-muted-foreground shrink-0" />
-                    <div className="min-w-0 flex-1">
-                      <span className="font-semibold text-sm text-foreground">
-                        Fase {pi + 1}: {phase.title}
-                      </span>
-                      <p className="text-xs text-muted-foreground truncate">{phase.delivery}</p>
-                    </div>
-                  </label>
-                );
-              })}
-            </div>
-          </motion.div>
-        ))}
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                <div className="space-y-2">
+                  {phases.map((phase, pi) => {
+                    const done = group.completedPhases[pi] ?? false;
+                    return (
+                      <label
+                        key={phase.id}
+                        className={cn(
+                          "flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors border text-sm",
+                          done
+                            ? "bg-primary/5 border-primary/20"
+                            : "bg-muted/30 border-transparent hover:bg-muted"
+                        )}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={done}
+                          onChange={() => togglePhase(group.id, pi)}
+                          className="w-4 h-4 accent-primary rounded"
+                        />
+                        <PhaseIcon icon={phase.icon} className="w-4 h-4 text-muted-foreground shrink-0" />
+                        <span className={cn("flex-1 truncate", done ? "text-foreground font-medium" : "text-muted-foreground")}>
+                          Fase {pi + 1}: {phase.title}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
       </main>
     </div>
   );

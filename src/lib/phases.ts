@@ -11,6 +11,7 @@ export interface Phase {
 export interface Group {
   id: string;
   name: string;
+  class: string; // Ex: 8º Ano A, 8º Ano B, etc.
   completedPhases: boolean[];
 }
 

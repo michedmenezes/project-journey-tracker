@@ -1,83 +1,187 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Settings, Rocket } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ShieldCheck, Filter, Trophy, Users, LayoutGrid, Rocket } from "lucide-react";
 import PhaseTracker from "@/components/PhaseTracker";
-import { loadGroups, type Group } from "@/lib/phases";
+import { loadGroups, loadPhases, type Group, type Phase } from "@/lib/phases";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 export default function Dashboard() {
   const [groups, setGroups] = useState<Group[]>([]);
+  const [phases, setPhases] = useState<Phase[]>([]);
+  const [selectedClass, setSelectedClass] = useState<string>("all");
+  const [viewMode, setViewMode] = useState<"grid" | "ranking">("grid");
 
   useEffect(() => {
-    setGroups(loadGroups());
-
-    const onStorage = () => setGroups(loadGroups());
-    window.addEventListener("storage", onStorage);
-
-    // Poll every 2s for same-tab updates from admin
-    const interval = setInterval(() => setGroups(loadGroups()), 2000);
+    const update = () => {
+      setGroups(loadGroups());
+      setPhases(loadPhases());
+    };
+    update();
+    const interval = setInterval(update, 2000);
+    window.addEventListener("storage", update);
     return () => {
-      window.removeEventListener("storage", onStorage);
       clearInterval(interval);
+      window.removeEventListener("storage", update);
     };
   }, []);
 
+  const classes = useMemo(() => {
+    const uniqueClasses = Array.from(new Set(groups.map((g) => g.class))).filter(Boolean);
+    return uniqueClasses.sort();
+  }, [groups]);
+
+  const filteredGroups = useMemo(() => {
+    let result = [...groups];
+    if (selectedClass !== "all") {
+      result = result.filter((g) => g.class === selectedClass);
+    }
+    
+    // Se for modo ranking, ordena por progresso (fases concluídas)
+    if (viewMode === "ranking") {
+      result.sort((a, b) => {
+        const aCompleted = a.completedPhases.filter(Boolean).length;
+        const bCompleted = b.completedPhases.filter(Boolean).length;
+        if (bCompleted !== aCompleted) return bCompleted - aCompleted;
+        return a.name.localeCompare(b.name); // Desempate por nome
+      });
+    }
+    
+    return result;
+  }, [groups, selectedClass, viewMode]);
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
+    <div className="min-h-screen bg-background pb-12">
+      {/* Header compactado para embutir no Moodle */}
       <header
-        className="py-8 px-4 text-center text-primary-foreground"
+        className="py-6 px-4 text-primary-foreground shadow-lg"
         style={{ background: "var(--gradient-hero)" }}
       >
-        <motion.div
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="max-w-3xl mx-auto"
-        >
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <Rocket className="w-8 h-8" />
-            <h1 className="font-display text-3xl sm:text-4xl font-bold">Projeto Autoral</h1>
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="bg-white/20 p-2 rounded-lg">
+              <Rocket className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="font-display text-2xl font-bold tracking-tight">Jornada do Projeto</h1>
+              <p className="text-white/80 text-xs font-medium uppercase tracking-wider">Acompanhamento de Progresso</p>
+            </div>
           </div>
-          <p className="text-primary-foreground/80 text-sm sm:text-base">
-            Acompanhe o progresso dos grupos pelos Níveis de Conquista
-          </p>
-        </motion.div>
-      </header>
-
-      {/* Groups */}
-      <main className="max-w-3xl mx-auto px-4 py-8 space-y-5">
-        {groups.length === 0 ? (
-          <div className="text-center py-20">
-            <p className="text-muted-foreground text-lg mb-2">Nenhum grupo cadastrado ainda.</p>
-            <Link
-              to="/admin"
-              className="inline-flex items-center gap-2 text-primary font-semibold hover:underline"
-            >
-              <Settings className="w-4 h-4" /> Ir para o painel do professor
+          
+          <div className="flex items-center gap-2">
+            <Link to="/admin">
+              <Button variant="ghost" size="sm" className="text-white hover:bg-white/10 gap-2">
+                <ShieldCheck className="w-4 h-4" /> Admin
+              </Button>
             </Link>
           </div>
-        ) : (
-          groups.map((g, i) => (
-            <motion.div
-              key={g.id}
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: i * 0.08 }}
+        </div>
+      </header>
+
+      <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+        {/* Toolbar de Filtros e Modos */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-card p-4 rounded-xl border border-border shadow-sm">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="flex items-center gap-2 bg-muted/50 px-3 py-1.5 rounded-lg border border-border">
+              <Filter className="w-4 h-4 text-muted-foreground" />
+              <span className="text-xs font-bold text-muted-foreground uppercase">Turma:</span>
+              <Select value={selectedClass} onValueChange={setSelectedClass}>
+                <SelectTrigger className="h-8 w-[140px] border-none bg-transparent shadow-none focus:ring-0">
+                  <SelectValue placeholder="Filtrar" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas</SelectItem>
+                  {classes.map((c) => (
+                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="flex items-center bg-muted/50 p-1 rounded-lg border border-border">
+            <button
+              onClick={() => setViewMode("grid")}
+              className={cn(
+                "flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold transition-all",
+                viewMode === "grid" ? "bg-white shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"
+              )}
             >
-              <PhaseTracker group={g} />
-            </motion.div>
-          ))
+              <LayoutGrid className="w-3.5 h-3.5" /> Grade
+            </button>
+            <button
+              onClick={() => setViewMode("ranking")}
+              className={cn(
+                "flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold transition-all",
+                viewMode === "ranking" ? "bg-white shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <Trophy className="w-3.5 h-3.5" /> Ranking
+            </button>
+          </div>
+        </div>
+
+        {/* Listagem de Grupos */}
+        {filteredGroups.length === 0 ? (
+          <div className="text-center py-20 bg-card rounded-2xl border-2 border-dashed border-border">
+            <Users className="w-12 h-12 mx-auto text-muted-foreground/30 mb-4" />
+            <h3 className="text-lg font-bold text-foreground">Nenhuma equipe encontrada</h3>
+            <p className="text-muted-foreground text-sm">O professor ainda não cadastrou equipes para esta seleção.</p>
+          </div>
+        ) : (
+          <div className={cn(
+            "grid gap-6",
+            viewMode === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-2" : "grid-cols-1"
+          )}>
+            <AnimatePresence mode="popLayout">
+              {filteredGroups.map((group, index) => {
+                const isTop = viewMode === "ranking" && index < 3;
+                
+                return (
+                  <motion.div
+                    key={group.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    className="relative"
+                  >
+                    {viewMode === "ranking" && (
+                      <div className={cn(
+                        "absolute -left-3 -top-3 w-8 h-8 rounded-full flex items-center justify-center font-bold text-white shadow-lg z-10",
+                        index === 0 ? "bg-yellow-500 scale-110" : 
+                        index === 1 ? "bg-slate-400" : 
+                        index === 2 ? "bg-amber-600" : "bg-muted-foreground"
+                      )}>
+                        {index + 1}
+                      </div>
+                    )}
+                    <PhaseTracker group={group} />
+                    {viewMode === "ranking" && isTop && (
+                      <div className="absolute -right-2 -top-2">
+                        <Trophy className={cn(
+                          "w-6 h-6",
+                          index === 0 ? "text-yellow-500" : 
+                          index === 1 ? "text-slate-400" : "text-amber-600"
+                        )} />
+                      </div>
+                    )}
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
         )}
       </main>
-
-      {/* FAB to admin */}
-      <Link
-        to="/admin"
-        className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
-        title="Painel do Professor"
-      >
-        <Settings className="w-6 h-6" />
-      </Link>
     </div>
   );
 }
