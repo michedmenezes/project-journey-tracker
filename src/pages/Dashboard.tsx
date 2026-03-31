@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShieldCheck, Filter, Trophy, Users, LayoutGrid, Rocket } from "lucide-react";
 import PhaseTracker from "@/components/PhaseTracker";
+import PhaseTrackerCondensed from "@/components/PhaseTrackerCondensed";
 import { loadGroups, loadPhases, type Group, type Phase } from "@/lib/phases";
 import { Button } from "@/components/ui/button";
 import {
@@ -138,13 +139,11 @@ export default function Dashboard() {
           </div>
         ) : (
           <div className={cn(
-            "grid gap-6",
-            viewMode === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-2" : "grid-cols-1"
+            "grid gap-4",
+            viewMode === "grid" ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"
           )}>
             <AnimatePresence mode="popLayout">
               {filteredGroups.map((group, index) => {
-                const isTop = viewMode === "ranking" && index < 3;
-                
                 return (
                   <motion.div
                     key={group.id}
@@ -153,27 +152,11 @@ export default function Dashboard() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.3, delay: index * 0.05 }}
-                    className="relative"
                   >
-                    {viewMode === "ranking" && (
-                      <div className={cn(
-                        "absolute -left-3 -top-3 w-8 h-8 rounded-full flex items-center justify-center font-bold text-white shadow-lg z-10",
-                        index === 0 ? "bg-yellow-500 scale-110" : 
-                        index === 1 ? "bg-slate-400" : 
-                        index === 2 ? "bg-amber-600" : "bg-muted-foreground"
-                      )}>
-                        {index + 1}
-                      </div>
-                    )}
-                    <PhaseTracker group={group} />
-                    {viewMode === "ranking" && isTop && (
-                      <div className="absolute -right-2 -top-2">
-                        <Trophy className={cn(
-                          "w-6 h-6",
-                          index === 0 ? "text-yellow-500" : 
-                          index === 1 ? "text-slate-400" : "text-amber-600"
-                        )} />
-                      </div>
+                    {viewMode === "grid" ? (
+                      <PhaseTracker group={group} />
+                    ) : (
+                      <PhaseTrackerCondensed group={group} rank={index + 1} />
                     )}
                   </motion.div>
                 );
