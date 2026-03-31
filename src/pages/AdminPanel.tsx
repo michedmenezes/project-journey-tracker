@@ -398,35 +398,47 @@ function PhaseForm({ form, onChange, onSave, onCancel, saveLabel }: PhaseFormPro
     onChange({ ...form, [key]: e.target.value });
 
   return (
-    <div className="space-y-2">
-      <div className="grid grid-cols-2 gap-2">
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-foreground uppercase tracking-wider">Título da Fase</label>
+          <Input
+            placeholder="Ex: Investigadores"
+            value={form.title}
+            onChange={set("title")}
+          />
+        </div>
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-foreground uppercase tracking-wider">Etapa do Projeto</label>
+          <Input
+            placeholder="Ex: Ideação"
+            value={form.stage}
+            onChange={set("stage")}
+          />
+        </div>
+      </div>
+      <div className="space-y-1">
+        <label className="text-xs font-bold text-foreground uppercase tracking-wider">Entrega Requerida</label>
         <Input
-          placeholder="Título"
-          value={form.title}
-          onChange={set("title")}
-        />
-        <Input
-          placeholder="Etapa (ex: Ideação)"
-          value={form.stage}
-          onChange={set("stage")}
+          placeholder="O que o grupo deve entregar?"
+          value={form.delivery}
+          onChange={set("delivery")}
         />
       </div>
-      <Input
-        placeholder="Entrega requerida"
-        value={form.delivery}
-        onChange={set("delivery")}
-      />
-      <textarea
-        placeholder="Descrição da fase (opcional)"
-        value={form.description}
-        onChange={set("description")}
-        rows={3}
-        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
-      />
-      <div>
-        <p className="text-xs text-muted-foreground mb-1">
-          Missões <span className="font-normal">(uma por linha)</span>
-        </p>
+      <div className="space-y-1">
+        <label className="text-xs font-bold text-foreground uppercase tracking-wider">Descrição Detalhada</label>
+        <textarea
+          placeholder="Explique o que acontece nesta fase..."
+          value={form.description}
+          onChange={set("description")}
+          rows={3}
+          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+        />
+      </div>
+      <div className="space-y-1">
+        <label className="text-xs font-bold text-foreground uppercase tracking-wider">
+          Missões <span className="font-normal lowercase">(uma por linha)</span>
+        </label>
         <textarea
           placeholder={"Missão 1\nMissão 2\nMissão 3"}
           value={form.missions}
@@ -435,8 +447,8 @@ function PhaseForm({ form, onChange, onSave, onCancel, saveLabel }: PhaseFormPro
           className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
         />
       </div>
-      <div>
-        <p className="text-xs text-muted-foreground mb-1">Ícone:</p>
+      <div className="space-y-1">
+        <label className="text-xs font-bold text-foreground uppercase tracking-wider">Ícone Representativo</label>
         <div className="flex flex-wrap gap-1">
           {AVAILABLE_ICONS.map((icon) => (
             <button
