@@ -64,12 +64,11 @@ export default function PhaseTracker({ group }: PhaseTrackerProps) {
           return (
             <div
               key={phase.id}
-              className="flex flex-col items-center flex-1 min-w-0 cursor-pointer"
-              onClick={() => openDetail(phase, i)}
+              className="flex flex-col items-center flex-1 min-w-0"
             >
               <motion.div
                 className={cn(
-                  "w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border-2 transition-colors hover:scale-110",
+                  "w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border-2 transition-colors cursor-pointer hover:scale-110",
                   done
                     ? `${phaseColors[i % phaseColors.length]} border-transparent text-primary-foreground`
                     : `bg-muted ${phaseBorders[i % phaseBorders.length]} text-muted-foreground`
@@ -77,12 +76,16 @@ export default function PhaseTracker({ group }: PhaseTrackerProps) {
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: i * 0.1 }}
+                onClick={() => openDetail(phase, i)}
               >
                 <PhaseIcon icon={phase.icon} className="w-5 h-5 sm:w-6 sm:h-6" />
               </motion.div>
-              <span className="mt-2 text-[10px] sm:text-xs font-semibold text-center leading-tight text-foreground">
+              <Link
+                to={`/fase/${phase.id}`}
+                className="mt-2 text-[10px] sm:text-xs font-semibold text-center leading-tight text-foreground hover:text-primary hover:underline transition-colors"
+              >
                 {phase.title}
-              </span>
+              </Link>
               <span className="text-[9px] sm:text-[10px] text-muted-foreground text-center leading-tight hidden sm:block">
                 {phase.stage}
               </span>

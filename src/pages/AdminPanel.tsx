@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Plus, Trash2, ArrowLeft, Lock, ShieldCheck, Pencil, Check, X, GripVertical } from "lucide-react";
+import { Plus, Trash2, ArrowLeft, Lock, ShieldCheck, Pencil, Check, X } from "lucide-react";
 import PhaseIcon from "@/components/PhaseIcon";
 import { loadPhases, savePhases, loadGroups, saveGroups, AVAILABLE_ICONS, type Phase, type Group } from "@/lib/phases";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,50 @@ import {
 
 const ADMIN_PASSWORD = "prof2025";
 
+type PhaseFormState = {
+  title: string;
+  stage: string;
+  delivery: string;
+  icon: string;
+  description: string;
+  missions: string; // newline-separated
+};
+
+const emptyForm = (): PhaseFormState => ({
+  title: "",
+  stage: "",
+  delivery: "",
+  icon: "Star",
+  description: "",
+  missions: "",
+});
+
+function phaseToForm(phase: Phase): PhaseFormState {
+  return {
+    title: phase.title,
+    stage: phase.stage,
+    delivery: phase.delivery,
+    icon: phase.icon,
+    description: phase.description ?? "",
+    missions: (phase.missions ?? []).join("\n"),
+  };
+}
+
+function formToPhase(form: PhaseFormState, base: Partial<Phase> = {}): Omit<Phase, "id"> {
+  return {
+    title: form.title.trim(),
+    stage: form.stage.trim(),
+    delivery: form.delivery.trim(),
+    icon: form.icon,
+    description: form.description.trim() || undefined,
+    missions: form.missions
+      .split("\n")
+      .map((m) => m.trim())
+      .filter(Boolean),
+    ...base,
+  };
+}
+
 export default function AdminPanel() {
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
@@ -24,8 +68,8 @@ export default function AdminPanel() {
   const [phases, setPhases] = useState<Phase[]>([]);
   const [newGroupName, setNewGroupName] = useState("");
   const [editingPhaseId, setEditingPhaseId] = useState<number | null>(null);
-  const [editForm, setEditForm] = useState({ title: "", stage: "", delivery: "", icon: "" });
-  const [newPhase, setNewPhase] = useState({ title: "", stage: "", delivery: "", icon: "Star" });
+  const [editForm, setEditForm] = useState<PhaseFormState>(emptyForm());
+  const [newPhase, setNewPhase] = useState<PhaseFormState>(emptyForm());
   const [showNewPhase, setShowNewPhase] = useState(false);
 
   useEffect(() => {
@@ -75,7 +119,6 @@ export default function AdminPanel() {
       groups.map((g) => {
         if (g.id !== groupId) return g;
         const cp = [...g.completedPhases];
-        // Ensure array is long enough
         while (cp.length < phases.length) cp.push(false);
         cp[phaseIndex] = !cp[phaseIndex];
         return { ...g, completedPhases: cp };
@@ -85,7 +128,7 @@ export default function AdminPanel() {
 
   const startEditPhase = (phase: Phase) => {
     setEditingPhaseId(phase.id);
-    setEditForm({ title: phase.title, stage: phase.stage, delivery: phase.delivery, icon: phase.icon });
+    setEditForm(phaseToForm(phase));
   };
 
   const saveEditPhase = () => {
@@ -93,7 +136,7 @@ export default function AdminPanel() {
     persistPhases(
       phases.map((p) =>
         p.id === editingPhaseId
-          ? { ...p, title: editForm.title.trim(), stage: editForm.stage.trim(), delivery: editForm.delivery.trim(), icon: editForm.icon }
+          ? { ...p, ...formToPhase(editForm) }
           : p
       )
     );
@@ -107,25 +150,20 @@ export default function AdminPanel() {
     const maxId = phases.reduce((max, p) => Math.max(max, p.id), 0);
     const phase: Phase = {
       id: maxId + 1,
-      title: newPhase.title.trim(),
-      stage: newPhase.stage.trim(),
-      delivery: newPhase.delivery.trim(),
-      icon: newPhase.icon,
+      ...formToPhase(newPhase),
     };
     persistPhases([...phases, phase]);
-    // Extend all groups' completedPhases
     persistGroups(groups.map((g) => ({
       ...g,
       completedPhases: [...g.completedPhases, false],
     })));
-    setNewPhase({ title: "", stage: "", delivery: "", icon: "Star" });
+    setNewPhase(emptyForm());
     setShowNewPhase(false);
   };
 
   const removePhase = (phaseIndex: number) => {
     const updated = phases.filter((_, i) => i !== phaseIndex);
     persistPhases(updated);
-    // Remove corresponding index from all groups
     persistGroups(groups.map((g) => ({
       ...g,
       completedPhases: g.completedPhases.filter((_, i) => i !== phaseIndex),
@@ -190,52 +228,13 @@ export default function AdminPanel() {
                 {phases.map((phase, pi) => (
                   <div key={phase.id} className="rounded-lg border border-border p-3">
                     {editingPhaseId === phase.id ? (
-                      <div className="space-y-2">
-                        <div className="grid grid-cols-2 gap-2">
-                          <Input
-                            placeholder="Título"
-                            value={editForm.title}
-                            onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                          />
-                          <Input
-                            placeholder="Etapa (ex: Ideação)"
-                            value={editForm.stage}
-                            onChange={(e) => setEditForm({ ...editForm, stage: e.target.value })}
-                          />
-                        </div>
-                        <Input
-                          placeholder="Entrega requerida"
-                          value={editForm.delivery}
-                          onChange={(e) => setEditForm({ ...editForm, delivery: e.target.value })}
-                        />
-                        <div>
-                          <p className="text-xs text-muted-foreground mb-1">Ícone:</p>
-                          <div className="flex flex-wrap gap-1">
-                            {AVAILABLE_ICONS.map((icon) => (
-                              <button
-                                key={icon}
-                                onClick={() => setEditForm({ ...editForm, icon })}
-                                className={cn(
-                                  "w-8 h-8 rounded-md flex items-center justify-center border transition-colors",
-                                  editForm.icon === icon
-                                    ? "border-primary bg-primary/10"
-                                    : "border-border hover:bg-muted"
-                                )}
-                              >
-                                <PhaseIcon icon={icon} className="w-4 h-4 text-foreground" />
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button size="sm" onClick={saveEditPhase} className="gap-1">
-                            <Check className="w-3 h-3" /> Salvar
-                          </Button>
-                          <Button size="sm" variant="ghost" onClick={cancelEdit} className="gap-1">
-                            <X className="w-3 h-3" /> Cancelar
-                          </Button>
-                        </div>
-                      </div>
+                      <PhaseForm
+                        form={editForm}
+                        onChange={setEditForm}
+                        onSave={saveEditPhase}
+                        onCancel={cancelEdit}
+                        saveLabel="Salvar"
+                      />
                     ) : (
                       <div className="flex items-center gap-3">
                         <PhaseIcon icon={phase.icon} className="w-5 h-5 text-muted-foreground shrink-0" />
@@ -246,7 +245,18 @@ export default function AdminPanel() {
                           <p className="text-xs text-muted-foreground truncate">
                             {phase.stage} — {phase.delivery}
                           </p>
+                          {phase.missions && phase.missions.length > 0 && (
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {phase.missions.length} missão(ões)
+                            </p>
+                          )}
                         </div>
+                        <Link
+                          to={`/fase/${phase.id}`}
+                          className="text-xs text-primary hover:underline shrink-0 mr-1"
+                        >
+                          Ver página
+                        </Link>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -270,51 +280,17 @@ export default function AdminPanel() {
                 ))}
 
                 {showNewPhase ? (
-                  <div className="rounded-lg border-2 border-dashed border-primary/30 p-3 space-y-2">
-                    <div className="grid grid-cols-2 gap-2">
-                      <Input
-                        placeholder="Título da fase"
-                        value={newPhase.title}
-                        onChange={(e) => setNewPhase({ ...newPhase, title: e.target.value })}
-                      />
-                      <Input
-                        placeholder="Etapa (ex: Pesquisa)"
-                        value={newPhase.stage}
-                        onChange={(e) => setNewPhase({ ...newPhase, stage: e.target.value })}
-                      />
-                    </div>
-                    <Input
-                      placeholder="Entrega requerida"
-                      value={newPhase.delivery}
-                      onChange={(e) => setNewPhase({ ...newPhase, delivery: e.target.value })}
+                  <div className="rounded-lg border-2 border-dashed border-primary/30 p-3">
+                    <p className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wide">
+                      Nova Etapa
+                    </p>
+                    <PhaseForm
+                      form={newPhase}
+                      onChange={setNewPhase}
+                      onSave={addPhase}
+                      onCancel={() => setShowNewPhase(false)}
+                      saveLabel="Adicionar Fase"
                     />
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-1">Ícone:</p>
-                      <div className="flex flex-wrap gap-1">
-                        {AVAILABLE_ICONS.map((icon) => (
-                          <button
-                            key={icon}
-                            onClick={() => setNewPhase({ ...newPhase, icon })}
-                            className={cn(
-                              "w-8 h-8 rounded-md flex items-center justify-center border transition-colors",
-                              newPhase.icon === icon
-                                ? "border-primary bg-primary/10"
-                                : "border-border hover:bg-muted"
-                            )}
-                          >
-                            <PhaseIcon icon={icon} className="w-4 h-4 text-foreground" />
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button size="sm" onClick={addPhase} className="gap-1">
-                        <Plus className="w-3 h-3" /> Adicionar Fase
-                      </Button>
-                      <Button size="sm" variant="ghost" onClick={() => setShowNewPhase(false)}>
-                        Cancelar
-                      </Button>
-                    </div>
                   </div>
                 ) : (
                   <Button
@@ -390,7 +366,7 @@ export default function AdminPanel() {
                       className="w-5 h-5 accent-primary rounded"
                     />
                     <PhaseIcon icon={phase.icon} className="w-5 h-5 text-muted-foreground shrink-0" />
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <span className="font-semibold text-sm text-foreground">
                         Fase {pi + 1}: {phase.title}
                       </span>
@@ -403,6 +379,90 @@ export default function AdminPanel() {
           </motion.div>
         ))}
       </main>
+    </div>
+  );
+}
+
+/* ─── Shared form component ─────────────────────────────────────── */
+
+interface PhaseFormProps {
+  form: PhaseFormState;
+  onChange: (form: PhaseFormState) => void;
+  onSave: () => void;
+  onCancel: () => void;
+  saveLabel: string;
+}
+
+function PhaseForm({ form, onChange, onSave, onCancel, saveLabel }: PhaseFormProps) {
+  const set = (key: keyof PhaseFormState) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    onChange({ ...form, [key]: e.target.value });
+
+  return (
+    <div className="space-y-2">
+      <div className="grid grid-cols-2 gap-2">
+        <Input
+          placeholder="Título"
+          value={form.title}
+          onChange={set("title")}
+        />
+        <Input
+          placeholder="Etapa (ex: Ideação)"
+          value={form.stage}
+          onChange={set("stage")}
+        />
+      </div>
+      <Input
+        placeholder="Entrega requerida"
+        value={form.delivery}
+        onChange={set("delivery")}
+      />
+      <textarea
+        placeholder="Descrição da fase (opcional)"
+        value={form.description}
+        onChange={set("description")}
+        rows={3}
+        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+      />
+      <div>
+        <p className="text-xs text-muted-foreground mb-1">
+          Missões <span className="font-normal">(uma por linha)</span>
+        </p>
+        <textarea
+          placeholder={"Missão 1\nMissão 2\nMissão 3"}
+          value={form.missions}
+          onChange={set("missions")}
+          rows={4}
+          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+        />
+      </div>
+      <div>
+        <p className="text-xs text-muted-foreground mb-1">Ícone:</p>
+        <div className="flex flex-wrap gap-1">
+          {AVAILABLE_ICONS.map((icon) => (
+            <button
+              key={icon}
+              type="button"
+              onClick={() => onChange({ ...form, icon })}
+              className={cn(
+                "w-8 h-8 rounded-md flex items-center justify-center border transition-colors",
+                form.icon === icon
+                  ? "border-primary bg-primary/10"
+                  : "border-border hover:bg-muted"
+              )}
+            >
+              <PhaseIcon icon={icon} className="w-4 h-4 text-foreground" />
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="flex gap-2 pt-1">
+        <Button size="sm" onClick={onSave} className="gap-1">
+          <Check className="w-3 h-3" /> {saveLabel}
+        </Button>
+        <Button size="sm" variant="ghost" onClick={onCancel} className="gap-1">
+          <X className="w-3 h-3" /> Cancelar
+        </Button>
+      </div>
     </div>
   );
 }

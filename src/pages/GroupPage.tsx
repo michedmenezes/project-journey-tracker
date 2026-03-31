@@ -113,23 +113,23 @@ export default function GroupPage() {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: i * 0.08 }}
-              onClick={() => openPhaseDetail(phase, i)}
               className={cn(
-                "rounded-xl bg-card shadow-md border p-5 cursor-pointer transition-all hover:shadow-lg hover:scale-[1.01]",
+                "rounded-xl bg-card shadow-md border p-5 transition-all hover:shadow-lg",
                 done ? "border-primary/30" : "border-border"
               )}
             >
               <div className="flex items-start gap-4">
-                <div
+                <button
+                  onClick={() => openPhaseDetail(phase, i)}
                   className={cn(
-                    "w-14 h-14 rounded-full flex items-center justify-center border-2 shrink-0",
+                    "w-14 h-14 rounded-full flex items-center justify-center border-2 shrink-0 cursor-pointer hover:scale-105 transition-transform",
                     done
                       ? `${phaseColors[i % phaseColors.length]} border-transparent text-primary-foreground`
                       : `bg-muted ${phaseBorders[i % phaseBorders.length]} text-muted-foreground`
                   )}
                 >
                   <PhaseIcon icon={phase.icon} className="w-7 h-7" />
-                </div>
+                </button>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-display text-lg font-bold text-foreground">
@@ -144,12 +144,23 @@ export default function GroupPage() {
                   <p className="text-sm text-muted-foreground mb-1">
                     Etapa: {phase.stage}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground mb-2">
                     📋 {phase.delivery}
                   </p>
-                  <span className={cn("text-xs font-semibold mt-2 inline-block", phaseTextColors[i % phaseTextColors.length])}>
-                    Clique para saber mais →
-                  </span>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <button
+                      onClick={() => openPhaseDetail(phase, i)}
+                      className={cn("text-xs font-semibold", phaseTextColors[i % phaseTextColors.length])}
+                    >
+                      Clique para detalhes →
+                    </button>
+                    <Link
+                      to={`/fase/${phase.id}`}
+                      className="text-xs font-semibold text-primary hover:underline"
+                    >
+                      Ver descrição e missões →
+                    </Link>
+                  </div>
                 </div>
               </div>
             </motion.div>
