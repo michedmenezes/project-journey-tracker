@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShieldCheck, Filter, Trophy, Users, LayoutGrid, Rocket, LayoutDashboard } from "lucide-react";
+import { ShieldCheck, Filter, Trophy, Users, LayoutGrid, Rocket, LayoutDashboard, BarChart3 } from "lucide-react";
 import PhaseTracker from "@/components/PhaseTracker";
 import PhaseTrackerCondensed from "@/components/PhaseTrackerCondensed";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -28,7 +28,7 @@ export default function Dashboard() {
       setPhases(loadPhases());
     };
     update();
-    const interval = setInterval(update, 2000);
+    const interval = setInterval(update, 5000);
     window.addEventListener("storage", update);
     return () => {
       clearInterval(interval);
@@ -76,6 +76,12 @@ export default function Dashboard() {
           
           <div className="flex items-center gap-3">
             <ThemeToggle />
+            <div className="h-6 w-[1px] bg-border mx-2" />
+            <Link to="/ranking">
+              <Button variant="ghost" size="sm" className="font-bold text-brand-500 hover:bg-brand-500/10 gap-2">
+                <BarChart3 className="w-4 h-4" /> <span className="hidden sm:inline">Ver Ranking Público</span>
+              </Button>
+            </Link>
             <Link to="/admin">
               <Button variant="ghost" size="sm" className="font-bold text-muted-foreground hover:text-brand-500 gap-2">
                 <ShieldCheck className="w-4 h-4" /> <span className="hidden sm:inline">Admin</span>

@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard.tsx";
 import GroupPage from "./pages/GroupPage.tsx";
 import AdminPanel from "./pages/AdminPanel.tsx";
 import PhasePage from "./pages/PhasePage.tsx";
+import RankingPage from "./pages/RankingPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -19,6 +20,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Dashboard />} />
+          <Route path="/ranking" element={<RankingPage />} />
           <Route path="/grupo/:groupId" element={<GroupPage />} />
           <Route path="/fase/:phaseId" element={<PhasePage />} />
           <Route path="/admin" element={<AdminPanel />} />
