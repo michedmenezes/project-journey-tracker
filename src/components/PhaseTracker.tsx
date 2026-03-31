@@ -1,26 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { PHASES, type Group } from "@/lib/phases";
+import { loadPhases, type Group, type Phase } from "@/lib/phases";
 import PhaseIcon from "./PhaseIcon";
 import PhaseDetailDialog from "./PhaseDetailDialog";
 import { cn } from "@/lib/utils";
-import type { Phase } from "@/lib/phases";
 
 const phaseColors = [
-  "bg-phase-1",
-  "bg-phase-2",
-  "bg-phase-3",
-  "bg-phase-4",
-  "bg-phase-5",
+  "bg-phase-1", "bg-phase-2", "bg-phase-3", "bg-phase-4", "bg-phase-5",
 ];
-
 const phaseBorders = [
-  "border-phase-1",
-  "border-phase-2",
-  "border-phase-3",
-  "border-phase-4",
-  "border-phase-5",
+  "border-phase-1", "border-phase-2", "border-phase-3", "border-phase-4", "border-phase-5",
 ];
 
 interface PhaseTrackerProps {
@@ -28,12 +18,18 @@ interface PhaseTrackerProps {
 }
 
 export default function PhaseTracker({ group }: PhaseTrackerProps) {
+  const [phases, setPhases] = useState<Phase[]>(loadPhases());
   const [selectedPhase, setSelectedPhase] = useState<Phase | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [dialogOpen, setDialogOpen] = useState(false);
 
+  useEffect(() => {
+    const interval = setInterval(() => setPhases(loadPhases()), 2000);
+    return () => clearInterval(interval);
+  }, []);
+
   const completed = group.completedPhases.filter(Boolean).length;
-  const pct = (completed / PHASES.length) * 100;
+  const pct = phases.length > 0 ? (completed / phases.length) * 100 : 0;
 
   const openDetail = (phase: Phase, index: number) => {
     setSelectedPhase(phase);
@@ -48,11 +44,10 @@ export default function PhaseTracker({ group }: PhaseTrackerProps) {
           <h3 className="font-display text-xl font-bold text-foreground">{group.name}</h3>
         </Link>
         <span className="text-sm font-semibold text-muted-foreground">
-          {completed}/{PHASES.length} fases
+          {completed}/{phases.length} fases
         </span>
       </div>
 
-      {/* Progress bar */}
       <div className="relative h-3 rounded-full bg-muted overflow-hidden mb-6">
         <motion.div
           className="absolute inset-y-0 left-0 rounded-full"
@@ -63,10 +58,9 @@ export default function PhaseTracker({ group }: PhaseTrackerProps) {
         />
       </div>
 
-      {/* Phase nodes */}
       <div className="flex items-start justify-between gap-1">
-        {PHASES.map((phase, i) => {
-          const done = group.completedPhases[i];
+        {phases.map((phase, i) => {
+          const done = group.completedPhases[i] ?? false;
           return (
             <div
               key={phase.id}
@@ -77,8 +71,8 @@ export default function PhaseTracker({ group }: PhaseTrackerProps) {
                 className={cn(
                   "w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border-2 transition-colors hover:scale-110",
                   done
-                    ? `${phaseColors[i]} border-transparent text-primary-foreground`
-                    : `bg-muted ${phaseBorders[i]} text-muted-foreground`
+                    ? `${phaseColors[i % phaseColors.length]} border-transparent text-primary-foreground`
+                    : `bg-muted ${phaseBorders[i % phaseBorders.length]} text-muted-foreground`
                 )}
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -97,7 +91,6 @@ export default function PhaseTracker({ group }: PhaseTrackerProps) {
         })}
       </div>
 
-      {/* Link to group page */}
       <Link
         to={`/grupo/${group.id}`}
         className="block text-center text-xs font-semibold text-primary mt-4 hover:underline"
@@ -108,7 +101,7 @@ export default function PhaseTracker({ group }: PhaseTrackerProps) {
       <PhaseDetailDialog
         phase={selectedPhase}
         phaseIndex={selectedIndex}
-        completed={selectedPhase ? group.completedPhases[selectedIndex] : false}
+        completed={selectedPhase ? (group.completedPhases[selectedIndex] ?? false) : false}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
       />

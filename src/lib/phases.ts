@@ -12,7 +12,7 @@ export interface Group {
   completedPhases: boolean[];
 }
 
-export const PHASES: Phase[] = [
+export const DEFAULT_PHASES: Phase[] = [
   {
     id: 1,
     title: "Investigadores",
@@ -51,6 +51,19 @@ export const PHASES: Phase[] = [
 ];
 
 const STORAGE_KEY = "autoral-progress-groups";
+const PHASES_STORAGE_KEY = "autoral-progress-phases";
+
+export function loadPhases(): Phase[] {
+  try {
+    const data = localStorage.getItem(PHASES_STORAGE_KEY);
+    if (data) return JSON.parse(data);
+  } catch {}
+  return DEFAULT_PHASES;
+}
+
+export function savePhases(phases: Phase[]): void {
+  localStorage.setItem(PHASES_STORAGE_KEY, JSON.stringify(phases));
+}
 
 export function loadGroups(): Group[] {
   try {
@@ -63,3 +76,11 @@ export function loadGroups(): Group[] {
 export function saveGroups(groups: Group[]): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(groups));
 }
+
+/** Available icons for phases */
+export const AVAILABLE_ICONS = [
+  "Search", "ClipboardList", "Hammer", "FlaskConical", "Trophy",
+  "Lightbulb", "Rocket", "Target", "Star", "BookOpen",
+  "Pencil", "Compass", "Wrench", "Zap", "Heart",
+  "Flag", "Award", "Map", "Eye", "Brain",
+];
