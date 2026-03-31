@@ -70,13 +70,18 @@ export default function PhaseDetailDialog({
         </DialogHeader>
 
         <div className="space-y-4 mt-2">
-          <div>
+          <div className="rounded-lg bg-muted/50 p-3 border border-border">
             <h4 className="text-sm font-semibold text-foreground mb-1">
-              Sobre esta fase
+              📋 Entrega Requerida
             </h4>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              {PHASE_DESCRIPTIONS[phase.id]}
-            </p>
+            <p className="text-sm text-muted-foreground">{phase.delivery}</p>
+          </div>
+
+          <div className="rounded-lg bg-muted/50 p-3 border border-border">
+            <h4 className="text-sm font-semibold text-foreground mb-1">
+              🎯 Etapa
+            </h4>
+            <p className="text-sm text-muted-foreground">{phase.stage}</p>
           </div>
 
           <div className="rounded-lg bg-muted/50 p-3 border border-border">
