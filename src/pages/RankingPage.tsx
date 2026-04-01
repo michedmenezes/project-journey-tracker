@@ -1,11 +1,12 @@
 import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, ArrowLeft, Filter, Rocket, LayoutDashboard, Search } from "lucide-react";
+import { Trophy, ArrowLeft, Filter, Rocket, Search, Share2, Check } from "lucide-react";
 import PhaseTrackerCondensed from "@/components/PhaseTrackerCondensed";
 import ThemeToggle from "@/components/ThemeToggle";
 import { loadGroups, loadPhases, type Group, type Phase } from "@/lib/phases";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -14,12 +15,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export default function RankingPage() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [phases, setPhases] = useState<Phase[]>([]);
   const [selectedClass, setSelectedClass] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const update = () => {
@@ -64,6 +67,32 @@ export default function RankingPage() {
     return result;
   }, [groups, selectedClass, searchQuery]);
 
+  const handleShare = async () => {
+    const shareData = {
+      title: 'Journey Tracker - Ranking de Equipes',
+      text: `Confira o progresso das equipes no projeto autoral${selectedClass !== 'all' ? ` da turma ${selectedClass}` : ''}!`,
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.error('Erro ao compartilhar:', err);
+      }
+    } else {
+      // Fallback to copy link
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        setCopied(true);
+        toast.success("Link copiado para a área de transferência!");
+        setTimeout(() => setCopied(false), 2000);
+      } catch (err) {
+        console.error('Erro ao copiar link:', err);
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
       {/* Header Materio Style */}
@@ -81,7 +110,19 @@ export default function RankingPage() {
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none mt-1">Público — Sem Senha</p>
             </div>
           </div>
-          <ThemeToggle />
+          
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleShare}
+              className="h-9 px-3 font-bold text-[10px] uppercase tracking-widest gap-2 border-brand-500/20 text-brand-500 hover:bg-brand-500/10"
+            >
+              {copied ? <Check className="w-3.5 h-3.5" /> : <Share2 className="w-3.5 h-3.5" />}
+              <span className="hidden sm:inline">{copied ? "Copiado!" : "Compartilhar"}</span>
+            </Button>
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
