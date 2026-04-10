@@ -96,7 +96,7 @@ export default function Dashboard() {
         <div className="materio-card rounded-xl p-6 materio-gradient relative overflow-hidden">
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="text-white">
-              <h2 className="text-2xl font-bold mb-1">Olá, Professor! 👋</h2>
+              <h2 className="text-2xl font-bold mb-1">Olá, Professor!</h2>
               <p className="text-white/80 text-sm font-medium">Acompanhe o progresso dos seus alunos em tempo real.</p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
